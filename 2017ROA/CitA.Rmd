@@ -1,0 +1,20 @@
+---
+title: "University of Alberta Faculty of Engineering Research Output"
+author: "Alison Henry"
+date: "September 29, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+# Install dependencies: dplyr, factoextra, FactoMineR, ggplot2, igraph, Matrix, SnowballC and, stringr 
+
+```{r}
+install.packages("dplyr", "factoextra", "FactoMineR", "ggplot2", "igraph", "Matrix", "rscopus", "SnowballC", "stringr")
+```
+# install stable version of bibliometrix from CRAN repository
+
+```{r}
+install.packages("bibliometrix")
+```
