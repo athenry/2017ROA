@@ -8,13 +8,26 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
 ```
-# Install dependencies: dplyr, factoextra, FactoMineR, ggplot2, igraph, Matrix, SnowballC and, stringr 
+
+
+## Install needed packages: bibliometrix, splitstackshape
 
 ```{r}
-install.packages("dplyr", "factoextra", "FactoMineR", "ggplot2", "igraph", "Matrix", "rscopus", "SnowballC", "stringr")
+install.packages("bibliometrix", dependencies = TRUE)
+install.packages("splitstackshape")
 ```
-# install stable version of bibliometrix from CRAN repository
+## Read in downloaded files and convert to dataframe
 
 ```{r}
-install.packages("bibliometrix")
+D <- readFiles("savedrecs1.bib", "savedrecs2.bib", "savedrecs3.bib", "savedrecs4.bib", "savedrecs5.bib", "savedrecs6.bib", "savedrecs7.bib", "savedrecs8.bib", "savedrecs9.bib", "savedrecs10.bib", "savedrecs11.bib", "savedrecs12.bib", "savedrecs13.bib")
+M <- convert2df(D, dbsource = "isi", format = "bibtex")
 ```
+## Keep only selected columns: UT, AU, DT, C1, TC, PY
+```{r}
+mydata <- subset(M, select = c(UT, C1, DT, TC, PY))
+```
+## Separate authors into sinlge observations
+```{r}
+tidy_data <- cSplit(mydata, "C1", sep = ";", direction = "long")
+```
+
