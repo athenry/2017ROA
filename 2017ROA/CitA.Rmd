@@ -30,4 +30,8 @@ mydata <- subset(M, select = c(UT, C1, DT, TC, PY))
 ```{r}
 tidy_data <- cSplit(mydata, "C1", sep = ";", direction = "long")
 ```
-
+## Remove non-UofA addresses
+```{r}
+AlbertaData <- tidy_data[grep("UNIV ALBERTA", tidy_data$C1), ]
+```
+## Identify departmental affiliations
