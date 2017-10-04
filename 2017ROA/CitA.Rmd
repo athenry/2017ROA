@@ -30,8 +30,16 @@ mydata <- subset(M, select = c(UT, C1, DT, TC, PY))
 ```{r}
 tidy_data <- cSplit(mydata, "C1", sep = ";", direction = "long")
 ```
+## Test that there were no unintended drops
+```{r}
+count <- sum(str_count(mydata$C1, ";"))
+ifelse(count + nrow(mydata) == nrow(tidy_data), "No drops", "Warning") 
+```
 ## Remove non-UofA addresses
 ```{r}
 AlbertaData <- tidy_data[grep("UNIV ALBERTA", tidy_data$C1), ]
 ```
 ## Identify departmental affiliations
+```{r}
+depts <- data.frame()
+  ```
