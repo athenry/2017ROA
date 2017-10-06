@@ -18,12 +18,14 @@ install.packages("splitstackshape")
 install.packages("stringr")
 install.packages("plyr")
 install.packages("ggplot2")
+install.packages("viridis")
 
 library(bibliometrix)
 library(splitstackshape)
 library(ggplot2)
 library(stringr)
 library(plyr)
+library(viridis)
 ```
 
 
