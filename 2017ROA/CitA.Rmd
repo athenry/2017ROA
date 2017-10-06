@@ -15,9 +15,9 @@ knitr::opts_chunk$set(echo = FALSE)
 ```{r}
 install.packages("bibliometrix", dependencies = TRUE)
 install.packages("splitstackshape")
-install.packages("ggplot2")
 install.packages("stringr")
 install.packages("plyr")
+install.packages("ggplot2")
 
 library(bibliometrix)
 library(splitstackshape)
@@ -63,10 +63,19 @@ AlbertaData$Dept <- ifelse(grepl(" CHEM ", AlbertaData$C1), "Department of Chemi
                     ifelse(grepl(" ELECT ", AlbertaData$C1), "Department of Electrical and Computer Engineering",
                     ifelse(grepl(" MECH ", AlbertaData$C1), "Department of Mechanical Engineering",
                     ifelse(grepl(" BIOMED ", AlbertaData$C1), "Department of Biomedical Engineering",
-                           "Other"))))))))
+                    ifelse(grepl(" RESOURCES ", AlbertaData$C1), "Department of Civil and Environmental Engineering",
+                    ifelse(grepl(" TRANSPORTATION ", AlbertaData$C1), "Department of Civil and Environmental Engineering",
+                           "Other"))))))))))
 ```
 ## check "other"s
-
-
+```{r}
+Other <- AlbertaData[which(AlbertaData$Dept == "Other"),]
+View(Other)
+```
 ## Report number of articles per year per department 
-## Report nu,ber of citations per department per year
+```{r}
+RepData <- subset(AlbertaData, Dept != "Other", select = c(UT, TC, PY, Dept))
+ppy <- ggplot(unique(RepData), aes(PY)) + geom_bar(aes(fill=Dept))
+```
+## Report number of citations per department per year
+cpy <- ggplot(unique(RepData), aes(Dept, TC)) + geom_col(aes(fill=PY), position = position_stack(reverse = TRUE))
