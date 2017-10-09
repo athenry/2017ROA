@@ -12,7 +12,7 @@ knitr::opts_chunk$set(echo = FALSE)
 
 ## Install and load needed packages: bibliometrix, splitstackshape
 
-```{r}
+```{r package installation}
 install.packages("bibliometrix", dependencies = TRUE)
 install.packages("splitstackshape")
 install.packages("stringr")
@@ -31,32 +31,32 @@ library(viridis)
 
 ## Read in downloaded files and convert to dataframe
 
-```{r}
+```{r read in bibtex files}
 filePaths = dir("./WoSdata", pattern = "*.bib", recursive = TRUE, full.names = TRUE) 
 D <- do.call("readFiles", as.list(filePaths)) 
 M <- convert2df(D, dbsource = "isi", format = "bibtex")
 ```
 ## Keep only selected columns: UT, AU, DT, C1, TC, PY
-```{r}
+```{r subset data}
 mydata <- subset(M, select = c(UT, C1, DT, TC, PY))
 ```
 ## Separate authors into single observations
-```{r}
+```{r seaparate authors}
 tidy_data <- cSplit(mydata, "C1", sep = ";", direction = "long")
 ```
 ## Test that there were no unintended drops
-```{r}
+```{r test for drops}
 count <- sum(str_count(mydata$C1, ";"))
 ifelse(count + nrow(mydata) == nrow(tidy_data), "No drops", "Warning") 
 ```
 ## Remove non-UofA addresses
-```{r}
+```{r limit to UofA addresses}
 AlbertaData <- tidy_data[grep("UNIV ALBERTA", tidy_data$C1), ]
 ```
 ## Identify departmental affiliations: need to automate this
 ## deptUrl <- ("https://docs.google.com/spreadsheets/d/e/2PACX-1vTMpIJn2N9pV13zRhYKRdOOAUfvHhKF6dqUzMWhnk3_eaBgPD8XT6UJBuAXfyoWfA0qfvaO4LyQpfJA/pub?output=csv")
 ## depts <- read.csv(deptUrl)
-```{r}
+```{r Assign departmental affiliation}
 AlbertaData$Dept <- ifelse(grepl(" CHEM ", AlbertaData$C1), "Department of Chemical and Materials Engineering",
                     ifelse(grepl(" MAT ", AlbertaData$C1), "Department of Chemical and Materials Engineering",
                     ifelse(grepl(" CIVIL ", AlbertaData$C1), "Department of Civil and Environmental Engineering",
@@ -70,7 +70,7 @@ AlbertaData$Dept <- ifelse(grepl(" CHEM ", AlbertaData$C1), "Department of Chemi
                            "Other"))))))))))
 ```
 ## check "other"s
-```{r}
+```{r examine "Other"}
 Other <- AlbertaData[which(AlbertaData$Dept == "Other"),]
 View(Other)
 ```
