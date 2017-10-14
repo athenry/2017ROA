@@ -11,7 +11,7 @@ knitr::opts_chunk$set(include = FALSE, message = FALSE, warning  = FALSE)
 ```
 A report to examine the publication output of the Univeristy of Alberta Faculty of Engineering. Searches were conducted using Web of Science, and limited to the five publication years from 2012-2016. 
 ```{r package installation}
-## Install and load needed packages
+##Install and load needed packages
 
 ##install.packages("bibliometrix", dependencies = TRUE)
 ##install.packages("splitstackshape")
@@ -22,6 +22,7 @@ A report to examine the publication output of the Univeristy of Alberta Faculty 
 library(bibliometrix)
 library(splitstackshape)
 library(tidyverse)
+library(stringr)
 library(viridis)
 library(knitr)
 ```
@@ -43,9 +44,9 @@ Data was kept for unique article identifiers, addresses, document type, publicat
 ## Separate authors into single observations
 tidy_data <- cSplit(mydata, "C1", sep = ";", direction = "long")
 ```
-
-```{r test for drops}
-## Test that there were no unintended drops
+Confirm no addresses were lost in the split:
+```{r test for drops, include=TRUE, echo=FALSE}
+##Test that there were no unintended drops
 count <- sum(str_count(mydata$C1, ";"))
 ifelse(count + nrow(mydata) == nrow(tidy_data), "No drops", "Warning") 
 ```
@@ -80,31 +81,34 @@ AlbertaData$Dept <- ifelse(grepl(" CHEM ", AlbertaData$C1), "Department of Chemi
 ##View(Other)
 ```
 Number of articles per year
-```{r include = TRUE, echo = FALSE}
+```{r}
 engData <- filter(AlbertaData, Dept != "Other")
 deptData <- group_by(engData, Dept) 
 fourDepts <- filter(deptData, Dept != "Department of Biomedical Engineering")
 ```
 With BioMed:
-```{r}
+```{r include = TRUE, echo = FALSE}
 ppy <- ggplot(unique(deptData), aes(PY)) 
 ppy + geom_bar(aes(fill=Dept)) + theme_bw(base_family = "Times") + labs(title = "Articles per Year, by Department", x = "Publication Year", y = "Articles") + scale_fill_viridis("Dept", discrete = TRUE)
 ```
 Without BioMed:
-```{r}
+```{r include = TRUE, echo = FALSE}
 ppy4<- ggplot(unique(fourDepts), aes(PY)) 
 ppy4 + geom_bar(aes(fill=Dept)) + theme_bw(base_family = "Times") + labs(title = "Articles per Year, by Department", x = "Publication Year", y = "Articles") + scale_fill_viridis("Dept", discrete = TRUE)
 ```
-The initial data load contained three types of documents: Articles, 
-Mean number of citations per article
-```{r citation summary, results='asis'}
+The initial data load contained three types of publications: Articles, Book Chapters, and Conference Proceedings.
+
+Mean number of citations per publication
+```{r citation summary, include = TRUE, echo = FALSE, results='asis'}
 ## Report number of citations per department
-tab1 <- summarise(deptData, "Times Cited" = mean(TC))
+tab1 <- summarise(deptData, 'Times Cited' = mean(TC))
 tab1[,sapply(tab1, is.numeric)] <- sapply(tab1[,sapply(tab1, is.numeric)], function(x) sprintf("%1.2f", x))
+tab1
 ```
 Mean citations per article using only document type "article"
-```{r article citation summary, results='asis'}
+```{r article citation summary, include = TRUE, echo = FALSE, results='asis'}
 articleData <- filter(deptData, DT == "ARTICLE ")
-tab2 <- summarise(articleData, "Times Cited" = mean(TC))
-tab2[,sapply(tab1, is.numeric)] <- sapply(tab1[,sapply(tab1, is.numeric)], function(x) sprintf("%1.2f", x))
+tab2 <- summarise(articleData, 'Times Cited' = mean(TC))
+tab2[,sapply(tab2, is.numeric)] <- sapply(tab2[,sapply(tab2, is.numeric)], function(x) sprintf("%1.2f", x))
+tab2
 ```
