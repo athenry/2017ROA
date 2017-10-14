@@ -6,32 +6,22 @@ output:
         word_document:
                 df_print: kable
 ---
-Define the question
-Define the ideal data set
-Determine what data you can access
-Obtain the data
-Clean the data
-
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(include = FALSE, message = FALSE, warning  = FALSE)
 ```
-A report to examine the publication output of the Univeristy of Alberta Faculty of Engineering. Searches were conducted using Web of Science, and limited to the five publications years from 2012-2016. 
+A report to examine the publication output of the Univeristy of Alberta Faculty of Engineering. Searches were conducted using Web of Science, and limited to the five publication years from 2012-2016. 
 ```{r package installation}
 ## Install and load needed packages
 
 ##install.packages("bibliometrix", dependencies = TRUE)
 ##install.packages("splitstackshape")
-##install.packages("stringr")
-##install.packages("dplyr")
-##install.packages("ggplot2")
+##install.packages("tidyverse")
 ##install.packages("viridis")
 ##install.packages("knitr")
 
 library(bibliometrix)
 library(splitstackshape)
-library(stringr)
-library(dplyr)
-library(ggplot2)
+library(tidyverse)
 library(viridis)
 library(knitr)
 ```
@@ -48,7 +38,7 @@ M <- convert2df(D, dbsource = "isi", format = "bibtex")
 ## Keep only selected columns: UT, DT, C1, DT, TC, PY
 mydata <- select(M, UT, C1, DT, PY, TC)
 ```
-Data was kept for unique artilce identifiers, addresses, document type, publication year and number of citations.
+Data was kept for unique article identifiers, addresses, document type, publication year and number of citations.
 ```{r separate authors}
 ## Separate authors into single observations
 tidy_data <- cSplit(mydata, "C1", sep = ";", direction = "long")
@@ -89,18 +79,32 @@ AlbertaData$Dept <- ifelse(grepl(" CHEM ", AlbertaData$C1), "Department of Chemi
 ##Other <- filter(AlbertaData, Dept == "Other")
 ##View(Other)
 ```
-Testing how this looks once knit.
+Number of articles per year
 ```{r include = TRUE, echo = FALSE}
 engData <- filter(AlbertaData, Dept != "Other")
 deptData <- group_by(engData, Dept) 
 fourDepts <- filter(deptData, Dept != "Department of Biomedical Engineering")
-
-ppy <- ggplot(unique(engData), aes(PY)) + geom_bar(aes(fill=Dept))
-ppy + theme_bw(base_family = "Times") + labs(title = "Articles per Year, by Department", x = "Publication Year", y = "Articles") + scale_fill_viridis("Dept", discrete = TRUE)
-## Report number of citations per department
-summarise(deptData, TimesCited=mean(TC))
-
 ```
-
-
-```{r results = 'asis'}
+With BioMed:
+```{r}
+ppy <- ggplot(unique(deptData), aes(PY)) 
+ppy + geom_bar(aes(fill=Dept)) + theme_bw(base_family = "Times") + labs(title = "Articles per Year, by Department", x = "Publication Year", y = "Articles") + scale_fill_viridis("Dept", discrete = TRUE)
+```
+Without BioMed:
+```{r}
+ppy4<- ggplot(unique(fourDepts), aes(PY)) 
+ppy4 + geom_bar(aes(fill=Dept)) + theme_bw(base_family = "Times") + labs(title = "Articles per Year, by Department", x = "Publication Year", y = "Articles") + scale_fill_viridis("Dept", discrete = TRUE)
+```
+The initial data load contained three types of documents: Articles, 
+Mean number of citations per article
+```{r citation summary, results='asis'}
+## Report number of citations per department
+tab1 <- summarise(deptData, "Times Cited" = mean(TC))
+tab1[,sapply(tab1, is.numeric)] <- sapply(tab1[,sapply(tab1, is.numeric)], function(x) sprintf("%1.2f", x))
+```
+Mean citations per article using only document type "article"
+```{r article citation summary, results='asis'}
+articleData <- filter(deptData, DT == "ARTICLE ")
+tab2 <- summarise(articleData, "Times Cited" = mean(TC))
+tab2[,sapply(tab1, is.numeric)] <- sapply(tab1[,sapply(tab1, is.numeric)], function(x) sprintf("%1.2f", x))
+```
