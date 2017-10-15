@@ -55,7 +55,7 @@ count <- sum(str_count(mydata$C1, ";"))
 ifelse(count + nrow(mydata) == nrow(tidy_data), "No drops", "Warning") 
 ```
 
-Non-UofA addresses are then removed and departmental affiliations assigned. This was done by comparing the abbreviations in the address field to a list of potential abbreviations with associated department names. Addresses without a match were assigned "Other." For a more detailed analysis, the "Other"s should be examined to identify potential Faculty of Engineering affiliation. A quick skim of the list shows that most were from other U of A departments (e.g. Physics, Earth and Atmospheric Sciences), but some listed only Univ Alberta, so would need a list of faculty members to be properly assigned. 
+Non-UofA addresses are then removed and departmental affiliations assigned. This was done by comparing the abbreviations in the address field to a list of potential abbreviations with associated department names. Addresses without a match were assigned "Other" and removed. For a more detailed analysis, the "Other"s should be examined to identify potential Faculty of Engineering affiliation. A quick skim of the list shows that most were from other U of A departments (e.g. Physics, Earth and Atmospheric Sciences), but some listed only Univ Alberta, so would need a list of faculty members to be properly assigned. 
 
 ```{r limit to UofA addresses}
 ## Remove non-UofA addresses
@@ -75,25 +75,28 @@ AlbertaData$Department <- str_replace(as.character(AlbertaData$Department), as.c
 ## check the "other"s for articles that should be kept
 Other <- filter(AlbertaData, Department == "Other")
 ##View(Other)
+engData <- filter(AlbertaData, Department != "Other")
 ```
 Whole counting is used, so that each publication is counted only once for the institution, but articles with authors from different departments will count toward the totals for each of those departments.
 
 ##Results
 Number of articles per year
-```{r}
-engData <- filter(AlbertaData, Department != "Other")
+```{r filter and group data}
 deptData <- group_by(engData, Department) 
 fourDepts <- filter(deptData, Department != "Biomedical Engineering")
+
+##set colour palette
+mycols <- palette(viridis(5))
 ```
 With BioMed:
 ```{r include = TRUE, echo = FALSE}
 ppy <- ggplot(unique(deptData), aes(PY)) 
-ppy + geom_bar(aes(fill=Department)) + theme_bw(base_family = "Times") + labs(title = "Articles per Year, by Department", x = "Publication Year", y = "Articles") + scale_fill_viridis("Department", discrete = TRUE)
+ppy + geom_bar(aes(fill=Department)) + theme_bw(base_family = "Times") + labs(title = "Articles per Year, by Department", x = "Publication Year", y = "Articles") + theme(legend.position="bottom") + scale_fill_manual(values = mycols)
 ```
 Without BioMed:
 ```{r include = TRUE, echo = FALSE}
 ppy4<- ggplot(unique(fourDepts), aes(PY)) 
-ppy4 + geom_bar(aes(fill=Department)) + theme_minimal(base_family = "Times") + labs(title = "Articles per Year, by Department", x = "Publication Year", y = "Articles") + scale_fill_viridis("Department", discrete = TRUE)
+ppy4 + geom_bar(aes(fill=Department)) + theme_minimal(base_family = "Times") + labs(title = "Articles per Year, by Department", x = "Publication Year", y = "Articles") + scale_fill_manual(values = mycols[2:5])
 ```
 The initial data load contained three types of publications: Articles, Book Chapters, and Conference Proceedings.
 
