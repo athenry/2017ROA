@@ -91,12 +91,12 @@ mycols <- palette(viridis(5))
 With BioMed:
 ```{r include = TRUE, echo = FALSE}
 ppy <- ggplot(unique(deptData), aes(PY)) 
-ppy + geom_bar(aes(fill=Department)) + theme_bw(base_family = "Times") + labs(title = "Articles per Year, by Department", x = "Publication Year", y = "Articles") + theme(legend.position="bottom") + scale_fill_manual(values = mycols)
+ppy + geom_bar(aes(fill=Department)) + theme_bw(base_family = "Times") + labs(title = "Articles per Year, by Department", x = "Publication Year", y = "Articles") + theme(plot.title = element_text(hjust = 0.5), legend.position = "bottom", legend.direction = "vertical", legend.title.align = 0.5) + scale_fill_manual(values = mycols, guide = guide_legend(ncol=2)) 
 ```
 Without BioMed:
 ```{r include = TRUE, echo = FALSE}
 ppy4<- ggplot(unique(fourDepts), aes(PY)) 
-ppy4 + geom_bar(aes(fill=Department)) + theme_minimal(base_family = "Times") + labs(title = "Articles per Year, by Department", x = "Publication Year", y = "Articles") + scale_fill_manual(values = mycols[2:5])
+ppy4 + geom_bar(aes(fill=Department)) + theme_minimal(base_family = "Times") + labs(title = "Articles per Year, by Department", x = "Publication Year", y = "Articles") + scale_fill_manual(values = mycols[2:5], guide = guide_legend(ncol=2)) + theme(plot.title = element_text(hjust = 0.5), legend.position = "bottom", legend.direction = "vertical", legend.title.align = 0.5)
 ```
 The initial data load contained three types of publications: Articles, Book Chapters, and Conference Proceedings.
 
