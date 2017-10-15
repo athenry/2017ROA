@@ -1,5 +1,6 @@
 ---
-title: "University of Alberta Faculty of Engineering Research Output"
+title: "University of Alberta 
+ Faculty of Engineering Research Output"
 author: "Alison Henry"
 date: "13 October 2017"
 output: 
@@ -10,6 +11,7 @@ output:
 knitr::opts_chunk$set(include = FALSE, message = FALSE, warning  = FALSE)
 ```
 A report to examine the publication output of the Univeristy of Alberta Faculty of Engineering. Searches were conducted using Web of Science, and limited to the five publication years from 2012-2016. 
+
 ```{r package installation}
 ##Install and load needed packages
 
@@ -26,7 +28,7 @@ library(stringr)
 library(viridis)
 library(knitr)
 ```
-Initial processing of the data was accomplished with the Bibliometrix package written by Massimo Aria and Corrado Cuccurullo. This allowed easy conversion of records into a data frame to facilitate further processing.
+Initial processing of the data was accomplished with the Bibliometrix package written by Massimo Aria and Corrado Cuccurullo[@RefWorks:doc:59d24e48e4b0b590b97a2290]. This allowed easy conversion of records into a data frame to facilitate further processing.
 
 ```{r read in bibtex files} 
 ## Read in downloaded files and convert to dataframe
@@ -39,66 +41,64 @@ M <- convert2df(D, dbsource = "isi", format = "bibtex")
 ## Keep only selected columns: UT, DT, C1, DT, TC, PY
 mydata <- select(M, UT, C1, DT, PY, TC)
 ```
-Data was kept for unique article identifiers, addresses, document type, publication year and number of citations.
+Data was kept for article identifiers, addresses, document type, publication year and number of citations. The address field is first split to separate co-author addresses.
+
 ```{r separate authors}
 ## Separate authors into single observations
 tidy_data <- cSplit(mydata, "C1", sep = ";", direction = "long")
 ```
 Confirm no addresses were lost in the split:
+
 ```{r test for drops, include=TRUE, echo=FALSE}
 ##Test that there were no unintended drops
 count <- sum(str_count(mydata$C1, ";"))
 ifelse(count + nrow(mydata) == nrow(tidy_data), "No drops", "Warning") 
 ```
 
+Non-UofA addresses are then removed and departmental affiliations assigned. This was done by comparing the abbreviations in the address field to a list of potential abbreviations with associated department names. Addresses without a match were assigned "Other." For a more detailed analysis, the "Other"s should be examined to identify potential Faculty of Engineering affiliation. A quick skim of the list shows that most were from other U of A departments (e.g. Physics, Earth and Atmospheric Sciences), but some listed only Univ Alberta, so would need a list of faculty members to be properly assigned. 
+
 ```{r limit to UofA addresses}
 ## Remove non-UofA addresses
 AlbertaData <- tidy_data[grep("UNIV ALBERTA", tidy_data$C1), ]
 ```
-Whole counting is used, so that each publication is counted only once for the institution, but articles with authors from different departments will count toward to totals for each of those departments.
 ```{r Assign departmental affiliation}
 
-## Identify departmental affiliations: need to automate this
-## deptUrl <- ("https://docs.google.com/spreadsheets/d/e/2PACX-1vTMpIJn2N9pV13zRhYKRdOOAUfvHhKF6dqUzMWhnk3_eaBgPD8XT6UJBuAXfyoWfA0qfvaO4LyQpfJA/pub?output=csv")
-## depts <- read.csv(deptUrl)
-
-AlbertaData$Dept <- ifelse(grepl(" CHEM ", AlbertaData$C1), "Department of Chemical and Materials Engineering",
-                    ifelse(grepl(" MAT ", AlbertaData$C1), "Department of Chemical and Materials Engineering",
-                    ifelse(grepl(" CIVIL ", AlbertaData$C1), "Department of Civil and Environmental Engineering",
-                    ifelse(grepl(" SCH MIN ", AlbertaData$C1), "Department of Civil and Environmental Engineering",
-                    ifelse(grepl(" PETR ", AlbertaData$C1), "Department of Civil and Environmental Engineering",
-                    ifelse(grepl(" ELECT ", AlbertaData$C1), "Department of Electrical and Computer Engineering",
-                    ifelse(grepl(" MECH ", AlbertaData$C1), "Department of Mechanical Engineering",
-                    ifelse(grepl(" BIOMED ", AlbertaData$C1), "Department of Biomedical Engineering",
-                    ifelse(grepl(" RESOURCES ", AlbertaData$C1), "Department of Civil and Environmental Engineering",
-                    ifelse(grepl(" TRANSPORTATION ", AlbertaData$C1), "Department of Civil and Environmental Engineering",
-                           "Other"))))))))))
+## Identify departmental affiliations
+deptUrl <- ("https://docs.google.com/spreadsheets/d/e/2PACX-1vTMpIJn2N9pV13zRhYKRdOOAUfvHhKF6dqUzMWhnk3_eaBgPD8XT6UJBuAXfyoWfA0qfvaO4LyQpfJA/pub?output=csv")
+depts <- read.csv(deptUrl)
+abs <- as.character(depts$Abbreviation)
+AlbertaData$Department <- ifelse(grepl(paste(abs, collapse = "|"), AlbertaData$C1), abs, "Other")
+AlbertaData$Department <- str_replace(as.character(AlbertaData$Department), as.character(depts$Abbreviation), as.character(depts$Name))
 ```
 
 ```{r examine "Other"}
 ## check the "other"s for articles that should be kept
-##Other <- filter(AlbertaData, Dept == "Other")
+Other <- filter(AlbertaData, Department == "Other")
 ##View(Other)
 ```
+Whole counting is used, so that each publication is counted only once for the institution, but articles with authors from different departments will count toward the totals for each of those departments.
+
+##Results
 Number of articles per year
 ```{r}
-engData <- filter(AlbertaData, Dept != "Other")
-deptData <- group_by(engData, Dept) 
-fourDepts <- filter(deptData, Dept != "Department of Biomedical Engineering")
+engData <- filter(AlbertaData, Department != "Other")
+deptData <- group_by(engData, Department) 
+fourDepts <- filter(deptData, Department != "Biomedical Engineering")
 ```
 With BioMed:
 ```{r include = TRUE, echo = FALSE}
 ppy <- ggplot(unique(deptData), aes(PY)) 
-ppy + geom_bar(aes(fill=Dept)) + theme_bw(base_family = "Times") + labs(title = "Articles per Year, by Department", x = "Publication Year", y = "Articles") + scale_fill_viridis("Dept", discrete = TRUE)
+ppy + geom_bar(aes(fill=Department)) + theme_bw(base_family = "Times") + labs(title = "Articles per Year, by Department", x = "Publication Year", y = "Articles") + scale_fill_viridis("Department", discrete = TRUE)
 ```
 Without BioMed:
 ```{r include = TRUE, echo = FALSE}
 ppy4<- ggplot(unique(fourDepts), aes(PY)) 
-ppy4 + geom_bar(aes(fill=Dept)) + theme_bw(base_family = "Times") + labs(title = "Articles per Year, by Department", x = "Publication Year", y = "Articles") + scale_fill_viridis("Dept", discrete = TRUE)
+ppy4 + geom_bar(aes(fill=Department)) + theme_minimal(base_family = "Times") + labs(title = "Articles per Year, by Department", x = "Publication Year", y = "Articles") + scale_fill_viridis("Department", discrete = TRUE)
 ```
 The initial data load contained three types of publications: Articles, Book Chapters, and Conference Proceedings.
 
 Mean number of citations per publication
+
 ```{r citation summary, include = TRUE, echo = FALSE, results='asis'}
 ## Report number of citations per department
 tab1 <- summarise(deptData, 'Times Cited' = mean(TC))
@@ -106,9 +106,11 @@ tab1[,sapply(tab1, is.numeric)] <- sapply(tab1[,sapply(tab1, is.numeric)], funct
 tab1
 ```
 Mean citations per article using only document type "article"
+
 ```{r article citation summary, include = TRUE, echo = FALSE, results='asis'}
 articleData <- filter(deptData, DT == "ARTICLE ")
 tab2 <- summarise(articleData, 'Times Cited' = mean(TC))
 tab2[,sapply(tab2, is.numeric)] <- sapply(tab2[,sapply(tab2, is.numeric)], function(x) sprintf("%1.2f", x))
 tab2
 ```
+#References
