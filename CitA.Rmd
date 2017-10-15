@@ -67,8 +67,21 @@ AlbertaData <- tidy_data[grep("UNIV ALBERTA", tidy_data$C1), ]
 deptUrl <- ("https://docs.google.com/spreadsheets/d/e/2PACX-1vTMpIJn2N9pV13zRhYKRdOOAUfvHhKF6dqUzMWhnk3_eaBgPD8XT6UJBuAXfyoWfA0qfvaO4LyQpfJA/pub?output=csv")
 depts <- read.csv(deptUrl)
 abs <- as.character(depts$Abbreviation)
-AlbertaData$Department <- ifelse(grepl(paste(abs, collapse = "|"), AlbertaData$C1), abs, "Other")
-AlbertaData$Department <- str_replace(as.character(AlbertaData$Department), as.character(depts$Abbreviation), as.character(depts$Name))
+##AlbertaData$Department <- ifelse(grepl(paste(abs, collapse = "|"), AlbertaData$C1), abs, "Other")
+##AlbertaData$Department <- str_replace(as.character(AlbertaData$Department), as.character(depts$Abbreviation), as.character(depts$Name))
+
+AlbertaData$Department <- ifelse(grepl(" CHEM ", AlbertaData$C1), "Chemical and Materials Engineering",
+                     ifelse(grepl(" MAT ", AlbertaData$C1), "Chemical and Materials Engineering",
+                     ifelse(grepl(" CIVIL ", AlbertaData$C1), "Civil and Environmental Engineering",
+                     ifelse(grepl(" SCH MIN ", AlbertaData$C1), "Civil and Environmental Engineering",
+                     ifelse(grepl(" PETR ", AlbertaData$C1), "Civil and Environmental Engineering",
+                     ifelse(grepl(" ELECT ", AlbertaData$C1), "Electrical and Computer Engineering",
+                     ifelse(grepl(" MECH ", AlbertaData$C1), "Mechanical Engineering",
+                     ifelse(grepl(" BIOMED ", AlbertaData$C1), "Biomedical Engineering",
+                     ifelse(grepl(" RESOURCES ", AlbertaData$C1), "Civil and Environmental Engineering",
+                     ifelse(grepl(" TRANSPORTATION ", AlbertaData$C1), "Civil and Environmental Engineering",
+                            "Other"))))))))))
+
 ```
 
 ```{r examine "Other"}
