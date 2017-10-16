@@ -178,16 +178,14 @@ Mean number of citations per publication
 
 ```{r citation summary, include = TRUE, echo = FALSE, results='asis'}
 ## Report number of citations per department
-tab1 <- summarise(deptData, 'Times Cited' = mean(TC))
-tab1[,sapply(tab1, is.numeric)] <- sapply(tab1[,sapply(tab1, is.numeric)], function(x) sprintf("%1.2f", x))
-tab1
+kable(summarise(deptData, 'Times Cited' = mean(TC)), digits = 2)
+
 ```
 Mean citations per article using only document type "article"
 
 ```{r article citation summary, include = TRUE, echo = FALSE, results='asis'}
 articleData <- filter(deptData, DT == "ARTICLE ")
-tab2 <- summarise(articleData, 'Times Cited' = mean(TC))
-tab2[,sapply(tab2, is.numeric)] <- sapply(tab2[,sapply(tab2, is.numeric)], function(x) sprintf("%1.2f", x))
-tab2
+kable(summarise(articleData, 'Times Cited' = mean(TC)), digits = 2)
+
 ```
 #References
