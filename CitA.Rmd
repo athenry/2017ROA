@@ -2,7 +2,7 @@
 title: "University of Alberta 
  Faculty of Engineering Research Output"
 author: "Alison Henry"
-date: "16 October 2017"
+date: "19 October 2017"
 output: 
         word_document:
                 df_print: kable
@@ -119,6 +119,7 @@ Non-UofA addresses are then removed and departmental affiliations assigned. This
 ```{r limit to UofA addresses}
 ## Remove non-UofA addresses
 AlbertaData <- tidy_data1[grep("UNIV ALBERTA", tidy_data1$C1), ]
+engData <- AlbertaData[grep("ENGN", AlbertaData$C1), ]
 ```
 ```{r Assign departmental affiliation}
 
@@ -126,28 +127,25 @@ AlbertaData <- tidy_data1[grep("UNIV ALBERTA", tidy_data1$C1), ]
 deptUrl <- ("https://docs.google.com/spreadsheets/d/e/2PACX-1vTMpIJn2N9pV13zRhYKRdOOAUfvHhKF6dqUzMWhnk3_eaBgPD8XT6UJBuAXfyoWfA0qfvaO4LyQpfJA/pub?output=csv")
 depts <- read.csv(deptUrl)
 abs <- as.character(depts$Abbreviation)
-##AlbertaData$Department <- ifelse(grepl(paste(abs, collapse = "|"), AlbertaData$C1), abs, "Other")
-##AlbertaData$Department <- str_replace(as.character(AlbertaData$Department), as.character(depts$Abbreviation), as.character(depts$Name))
 
-AlbertaData$Department <- ifelse(grepl(" CHEM ", AlbertaData$C1), "Chemical and Materials Engineering",
-                     ifelse(grepl(" MAT ", AlbertaData$C1), "Chemical and Materials Engineering",
-                     ifelse(grepl(" CIVIL ", AlbertaData$C1), "Civil and Environmental Engineering",
-                     ifelse(grepl(" SCH MIN ", AlbertaData$C1), "Civil and Environmental Engineering",
-                     ifelse(grepl(" PETR ", AlbertaData$C1), "Civil and Environmental Engineering",
-                     ifelse(grepl(" ELECT ", AlbertaData$C1), "Electrical and Computer Engineering",
-                     ifelse(grepl(" MECH ", AlbertaData$C1), "Mechanical Engineering",
-                     ifelse(grepl(" BIOMED ", AlbertaData$C1), "Biomedical Engineering",
-                     ifelse(grepl(" RESOURCES ", AlbertaData$C1), "Civil and Environmental Engineering",
-                     ifelse(grepl(" TRANSPORTATION ", AlbertaData$C1), "Civil and Environmental Engineering",
-                            "Other"))))))))))
+##AlbertaData$Department <- ifelse(grepl(" CHEM ", AlbertaData$C1), "Chemical and Materials Engineering",
+  ##                   ifelse(grepl(" MAT ", AlbertaData$C1), "Chemical and Materials Engineering",
+    ##                 ifelse(grepl(" CIVIL ", AlbertaData$C1), "Civil and Environmental Engineering",
+      ##               ifelse(grepl(" SCH MIN ", AlbertaData$C1), "Civil and Environmental Engineering",
+        ##             ifelse(grepl(" PETR ", AlbertaData$C1), "Civil and Environmental Engineering",
+          ##           ifelse(grepl(" ELECT ", AlbertaData$C1), "Electrical and Computer Engineering",
+            ##         ifelse(grepl(" MECH ", AlbertaData$C1), "Mechanical Engineering",
+              ##       ifelse(grepl(" BIOMED ", AlbertaData$C1), "Biomedical Engineering",
+                ##     ifelse(grepl(" RESOURCES ", AlbertaData$C1), "Civil and Environmental Engineering",
+                  ##   ifelse(grepl(" TRANSPORTATION ", AlbertaData$C1), "Civil and Environmental Engineering",
+                    ##        "Other"))))))))))
 
 ```
 
 ```{r examine "Other"}
 ## check the "other"s for articles that should be kept
-Other <- filter(AlbertaData, Department == "Other")
+##Other <- filter(AlbertaData, Department == "Other")
 ##View(Other)
-engData <- filter(AlbertaData, Department != "Other")
 ```
 Whole counting is used, so that each publication is counted only once for the institution, but articles with authors from different departments will count toward the totals for each of those departments.
 
