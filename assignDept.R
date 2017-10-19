@@ -9,9 +9,11 @@ depts <- read.csv(deptUrl)
 abs <- as.character(depts$Abbreviation)
 testData <- engData
 
-testData$Abbreviation <- as.character(sapply(testData$C1, function(x) abs[str_detect(x, abs)]))
+testData$Abbreviation <- sapply(testData$C1, function(x) abs[str_detect(x, abs)])
 
-## problem with this solution: anything with multiple matches gets NA
+testData$Abbreviation <- sapply(testData$Abbreviation, '[[', 1)
+## problem with this solution: anything with multiple matches gets NA. Need a way to keep only first element.
+
 finalTestData <- merge(testData, depts, all.x = TRUE) ##keeps nonmatches and enters NA
 
 
