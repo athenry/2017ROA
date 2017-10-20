@@ -2,7 +2,7 @@
 title: "University of Alberta 
  Faculty of Engineering Research Output"
 author: "Alison Henry"
-date: "19 October 2017"
+date: "20 October 2017"
 output: 
         word_document:
                 df_print: kable
@@ -114,31 +114,31 @@ count <- sum(str_count(mydata1$C1, ";"))
 ifelse(count + nrow(mydata1) == nrow(tidy_data1), "No drops", "Warning") 
 ```
 
-Non-UofA addresses are then removed and departmental affiliations assigned. This was done by comparing the abbreviations in the address field to a list of potential abbreviations with associated department names. Addresses without a match were assigned "Other" and removed. For a more detailed analysis, the "Other"s should be examined to identify potential Faculty of Engineering affiliation. A quick skim of the list shows that most were from other U of A departments (e.g. Physics, Earth and Atmospheric Sciences), but some listed only Univ Alberta, so would need a list of faculty members to be properly assigned. 
+Non-UofA addresses are then removed and departmental affiliations assigned. This was done by comparing the abbreviations in the address field to a list of potential abbreviations with associated department names. Addresses without a match were assigned "Other" and removed. For a more detailed analysis, the "Other"s should be examined to identify potential Faculty of Engineering affiliation. A quick skim of the list shows that most were from other U of A departments (e.g. Physics, Earth and Atmospheric Sciences), but some listed only Univ Alberta, so would need to be compared to a list of faculty members to be properly assigned. 
 
 ```{r limit to UofA addresses}
 ## Remove non-UofA addresses
 AlbertaData <- tidy_data1[grep("UNIV ALBERTA", tidy_data1$C1), ]
-engData <- AlbertaData[grep("ENGN", AlbertaData$C1), ]
+##engData <- AlbertaData[grep("ENGN", AlbertaData$C1), ]
 ```
 ```{r Assign departmental affiliation}
 
 ## Identify departmental affiliations
-deptUrl <- ("https://docs.google.com/spreadsheets/d/e/2PACX-1vTMpIJn2N9pV13zRhYKRdOOAUfvHhKF6dqUzMWhnk3_eaBgPD8XT6UJBuAXfyoWfA0qfvaO4LyQpfJA/pub?output=csv")
-depts <- read.csv(deptUrl)
-abs <- as.character(depts$Abbreviation)
+##deptUrl <- ("https://docs.google.com/spreadsheets/d/e/2PACX-1vTMpIJn2N9pV13zRhYKRdOOAUfvHhKF6dqUzMWhnk3_eaBgPD8XT6UJBuAXfyoWfA0qfvaO4LyQpfJA/pub?output=csv")
+##depts <- read.csv(deptUrl)
+##abs <- as.character(depts$Abbreviation)
 
-##AlbertaData$Department <- ifelse(grepl(" CHEM ", AlbertaData$C1), "Chemical and Materials Engineering",
-  ##                   ifelse(grepl(" MAT ", AlbertaData$C1), "Chemical and Materials Engineering",
-    ##                 ifelse(grepl(" CIVIL ", AlbertaData$C1), "Civil and Environmental Engineering",
-      ##               ifelse(grepl(" SCH MIN ", AlbertaData$C1), "Civil and Environmental Engineering",
-        ##             ifelse(grepl(" PETR ", AlbertaData$C1), "Civil and Environmental Engineering",
-          ##           ifelse(grepl(" ELECT ", AlbertaData$C1), "Electrical and Computer Engineering",
-            ##         ifelse(grepl(" MECH ", AlbertaData$C1), "Mechanical Engineering",
-              ##       ifelse(grepl(" BIOMED ", AlbertaData$C1), "Biomedical Engineering",
-                ##     ifelse(grepl(" RESOURCES ", AlbertaData$C1), "Civil and Environmental Engineering",
-                  ##   ifelse(grepl(" TRANSPORTATION ", AlbertaData$C1), "Civil and Environmental Engineering",
-                    ##        "Other"))))))))))
+AlbertaData$Department <- ifelse(grepl(" CHEM ", AlbertaData$C1), "Chemical and Materials Engineering",
+                   ifelse(grepl(" MAT ", AlbertaData$C1), "Chemical and Materials Engineering",
+                     ifelse(grepl(" CIVIL ", AlbertaData$C1), "Civil and Environmental Engineering",
+                     ifelse(grepl(" SCH MIN ", AlbertaData$C1), "Civil and Environmental Engineering",
+                     ifelse(grepl(" PETR ", AlbertaData$C1), "Civil and Environmental Engineering",
+                     ifelse(grepl(" ELECT ", AlbertaData$C1), "Electrical and Computer Engineering",
+                     ifelse(grepl(" MECH ", AlbertaData$C1), "Mechanical Engineering",
+                     ifelse(grepl(" BIOMED ", AlbertaData$C1), "Biomedical Engineering",
+                     ifelse(grepl(" RESOURCES ", AlbertaData$C1), "Civil and Environmental Engineering",
+                     ifelse(grepl(" TRANSPORTATION ", AlbertaData$C1), "Civil and Environmental Engineering",
+                            "Other"))))))))))
 
 ```
 
@@ -146,8 +146,11 @@ abs <- as.character(depts$Abbreviation)
 ## check the "other"s for articles that should be kept
 ##Other <- filter(AlbertaData, Department == "Other")
 ##View(Other)
+
+##Keep only eng departments
+engData <- filter(AlbertaData, Department != "Other")
 ```
-Whole counting is used, so that each publication is counted only once for the institution, but articles with authors from different departments will count toward the totals for each of those departments.
+Whole counting is used, such that each publication is counted only once for the institution, but articles with authors from different departments will count toward the totals for each of those departments.
 
 ##Results
 Number of articles per year
@@ -158,18 +161,27 @@ fourDepts <- filter(deptData, Department != "Biomedical Engineering")
 ## set colour scheme for charts
 cbpalette <- viridis(5)
 ```
+
 With BioMed:
 
 ```{r include = TRUE, echo = FALSE}
 ppy <- ggplot(unique(deptData), aes(PY)) 
 ppy + geom_bar(aes(fill=Department)) + theme_bw(base_family = "Times") + labs(title = "Articles per Year, by Department", x = "Publication Year", y = "Articles") + theme(plot.title = element_text(hjust = 0.5), legend.position = "bottom", legend.direction = "vertical", legend.title.align = 0.5) + scale_fill_manual(values = cbpalette, guide = guide_legend(ncol=2)) 
 ```
+
 Without BioMed:
 
 ```{r include = TRUE, echo = FALSE}
 ppy4<- ggplot(unique(fourDepts), aes(PY)) 
 ppy4 + geom_bar(aes(fill=Department)) + theme_minimal(base_family = "Times") + labs(title = "Articles per Year, by Department", x = "Publication Year", y = "Articles") + scale_fill_manual(values = cbpalette[2:5], guide = guide_legend(ncol=2)) + theme(plot.title = element_text(hjust = 0.5), legend.position = "bottom", legend.direction = "vertical", legend.title.align = 0.5)
 ```
+```{r create tables, include = TRUE, echo = FALSE, results='asis'}
+attach(engData)
+deptTable <- table(Department, PY)
+kable(deptTable)
+
+```
+
 The initial data load contained three types of publications: Articles, Book Chapters, and Conference Proceedings.
 
 Mean number of citations per publication
@@ -179,11 +191,13 @@ Mean number of citations per publication
 kable(summarise(deptData, 'Times Cited' = mean(TC)), digits = 2)
 
 ```
+
 Mean citations per article using only document type "article"
 
 ```{r article citation summary, include = TRUE, echo = FALSE, results='asis'}
 articleData <- filter(deptData, DT == "ARTICLE ")
 kable(summarise(articleData, 'Times Cited' = mean(TC)), digits = 2)
-
 ```
+
+
 #References
