@@ -34,151 +34,87 @@ Initial processing of the data was accomplished with the Bibliometrix package wr
 
 ```{r read in bibtex files} 
 ## Read in downloaded files and convert to dataframe
-filePaths1 = dir("./WoSdata", pattern = "*.bib", recursive = TRUE, full.names = TRUE) 
-D1 <- do.call("readFiles", as.list(filePaths1)) 
-M1 <- convert2df(D1, dbsource = "isi", format = "bibtex")
-
-##filePaths2 = dir("./WoSdata", pattern = "*.bib", recursive = TRUE, full.names = TRUE) 
-##D2 <- do.call("readFiles", as.list(filePaths2)) 
-##M2 <- convert2df(D2, dbsource = "isi", format = "bibtex")
-
-##filePaths3 = dir("./WoSdata", pattern = "*.bib", recursive = TRUE, full.names = TRUE) 
-##D3 <- do.call("readFiles", as.list(filePaths3)) 
-##M3 <- convert2df(D3, dbsource = "isi", format = "bibtex")
-
-##filePaths4 = dir("./WoSdata", pattern = "*.bib", recursive = TRUE, full.names = TRUE) 
-##D4 <- do.call("readFiles", as.list(filePaths4)) 
-##M4 <- convert2df(D4, dbsource = "isi", format = "bibtex")
-
-##filePaths5 = dir("./WoSdata", pattern = "*.bib", recursive = TRUE, full.names = TRUE) 
-##D5 <- do.call("readFiles", as.list(filePaths5)) 
-##M5 <- convert2df(D5, dbsource = "isi", format = "bibtex")
-
-##filePaths6 = dir("./WoSdata", pattern = "*.bib", recursive = TRUE, full.names = TRUE) 
-##D6 <- do.call("readFiles", as.list(filePaths6)) 
-##M6 <- convert2df(D6, dbsource = "isi", format = "bibtex")
-
-##filePaths7 = dir("./WoSdata", pattern = "*.bib", recursive = TRUE, full.names = TRUE) 
-##D7 <- do.call("readFiles", as.list(filePaths7)) 
-##M7 <- convert2df(D7, dbsource = "isi", format = "bibtex")
-
-##filePaths8 = dir("./WoSdata", pattern = "*.bib", recursive = TRUE, full.names = TRUE) 
-##D8 <- do.call("readFiles", as.list(filePaths8)) 
-##M8 <- convert2df(D8, dbsource = "isi", format = "bibtex")
-
-##filePaths9 = dir("./WoSdata", pattern = "*.bib", recursive = TRUE, full.names = TRUE) 
-##D9 <- do.call("readFiles", as.list(filePaths9)) 
-##M9 <- convert2df(D9, dbsource = "isi", format = "bibtex")
-
-##filePaths10 = dir("./WoSdata", pattern = "*.bib", recursive = TRUE, full.names = TRUE) 
-##D10 <- do.call("readFiles", as.list(filePaths10)) 
-##M10 <- convert2df(D10, dbsource = "isi", format = "bibtex")
-
-##filePaths11 = dir("./WoSdata", pattern = "*.bib", recursive = TRUE, full.names = TRUE) 
-##D11 <- do.call("readFiles", as.list(filePaths11)) 
-##M11 <- convert2df(D11, dbsource = "isi", format = "bibtex")
-
-##filePaths12 = dir("./WoSdata", pattern = "*.bib", recursive = TRUE, full.names = TRUE) 
-##D12 <- do.call("readFiles", as.list(filePaths12)) 
-##M12 <- convert2df(D12, dbsource = "isi", format = "bibtex")
-
-##filePaths13 = dir("./WoSdata", pattern = "*.bib", recursive = TRUE, full.names = TRUE) 
-##D13 <- do.call("readFiles", as.list(filePaths13)) 
-##M13 <- convert2df(D13, dbsource = "isi", format = "bibtex")
-
-##filePaths14 = dir("./WoSdata", pattern = "*.bib", recursive = TRUE, full.names = TRUE) 
-##D14 <- do.call("readFiles", as.list(filePaths14)) 
-##M14 <- convert2df(D14, dbsource = "isi", format = "bibtex")
-
-##filePaths15 = dir("./WoSdata", pattern = "*.bib", recursive = TRUE, full.names = TRUE) 
-##D15 <- do.call("readFiles", as.list(filePaths15)) 
-##M15 <- convert2df(D15, dbsource = "isi", format = "bibtex")
-
+filePaths = dir("./WoSdata", pattern = "*.bib", recursive = TRUE, full.names = TRUE) 
+D <- do.call("readFiles", as.list(filePaths)) 
+M <- convert2df(D, dbsource = "isi", format = "bibtex")
 ```
 
 ```{r subset data}
 ## Keep only selected columns: UT, DT, C1, DT, TC, PY
-mydata1 <- select(M1, UT, C1, DT, PY, TC)
+mydata <- select(M, UT, C1, DT, PY, TC)
 ```
 Data was kept for article identifiers, addresses, document type, publication year and number of citations. The address field is first split to separate co-author addresses.
 
 ```{r separate authors}
 ## Separate authors into single observations
-tidy_data1 <- cSplit(mydata1, "C1", sep = ";", direction = "long")
+tidy_data <- cSplit(mydata, "C1", sep = ";", direction = "long")
 ```
 Confirm no addresses were lost in the split:
 
 ```{r test for drops, include=TRUE, echo=FALSE}
 ##Test that there were no unintended drops
-count <- sum(str_count(mydata1$C1, ";"))
-ifelse(count + nrow(mydata1) == nrow(tidy_data1), "No drops", "Warning") 
+count <- sum(str_count(mydata$C1, ";"))
+ifelse(count + nrow(mydata) == nrow(tidy_data), "No drops", "Warning") 
 ```
 
-Non-UofA addresses are then removed and departmental affiliations assigned. This was done by comparing the abbreviations in the address field to a list of potential abbreviations with associated department names. Addresses without a match were assigned "Other" and removed. For a more detailed analysis, the "Other"s should be examined to identify potential Faculty of Engineering affiliation. A quick skim of the list shows that most were from other U of A departments (e.g. Physics, Earth and Atmospheric Sciences), but some listed only Univ Alberta, so would need to be compared to a list of faculty members to be properly assigned. 
+Non-UofA addresses are then removed and departmental affiliations assigned. This was done by comparing the abbreviations in the address field to a list of potential abbreviations with associated department names. Addresses without a match were removed. For a more detailed analysis, these discards should be examined to identify potential Faculty of Engineering affiliation. A quick skim of the list shows that most were from other U of A departments (e.g. Physics, Earth and Atmospheric Sciences), but some listed only Univ Alberta, so would need to be compared to a list of faculty members to be properly assigned. 
 
 ```{r limit to UofA addresses}
-## Remove non-UofA addresses
-AlbertaData <- tidy_data1[grep("UNIV ALBERTA", tidy_data1$C1), ]
-##engData <- AlbertaData[grep("ENGN", AlbertaData$C1), ]
+## Remove non-UofA and non-engineering addresses
+AlbertaData <- tidy_data[grep("UNIV ALBERTA", tidy_data$C1), ]
+engData <- AlbertaData[grep("ENGN", AlbertaData$C1), ]
 ```
 ```{r Assign departmental affiliation}
-
 ## Identify departmental affiliations
-##deptUrl <- ("https://docs.google.com/spreadsheets/d/e/2PACX-1vTMpIJn2N9pV13zRhYKRdOOAUfvHhKF6dqUzMWhnk3_eaBgPD8XT6UJBuAXfyoWfA0qfvaO4LyQpfJA/pub?output=csv")
-##depts <- read.csv(deptUrl)
-##abs <- as.character(depts$Abbreviation)
+deptUrl <- ("https://docs.google.com/spreadsheets/d/e/2PACX-1vTMpIJn2N9pV13zRhYKRdOOAUfvHhKF6dqUzMWhnk3_eaBgPD8XT6UJBuAXfyoWfA0qfvaO4LyQpfJA/pub?output=csv")
+depts <- read.csv(deptUrl)
+abs <- as.character(depts$Abbreviation)
 
-AlbertaData$Department <- ifelse(grepl(" CHEM ", AlbertaData$C1), "Chemical and Materials Engineering",
-                   ifelse(grepl(" MAT ", AlbertaData$C1), "Chemical and Materials Engineering",
-                     ifelse(grepl(" CIVIL ", AlbertaData$C1), "Civil and Environmental Engineering",
-                     ifelse(grepl(" SCH MIN ", AlbertaData$C1), "Civil and Environmental Engineering",
-                     ifelse(grepl(" PETR ", AlbertaData$C1), "Civil and Environmental Engineering",
-                     ifelse(grepl(" ELECT ", AlbertaData$C1), "Electrical and Computer Engineering",
-                     ifelse(grepl(" MECH ", AlbertaData$C1), "Mechanical Engineering",
-                     ifelse(grepl(" BIOMED ", AlbertaData$C1), "Biomedical Engineering",
-                     ifelse(grepl(" RESOURCES ", AlbertaData$C1), "Civil and Environmental Engineering",
-                     ifelse(grepl(" TRANSPORTATION ", AlbertaData$C1), "Civil and Environmental Engineering",
-                            "Other"))))))))))
-
+dept_test <- sapply(engData$C1, function(x) abs[str_detect(x, abs)])
+engData<-cbind(engData,plyr::ldply(dept_test,rbind)[,1])
+names(engData)[6]<-"Abbreviation"
+engDeptData <- merge(engData, depts, all.x = TRUE) ##keeps nonmatches and enters NA
 ```
 
-```{r examine "Other"}
+```{r examine "Other"s}
 ## check the "other"s for articles that should be kept
-##Other <- filter(AlbertaData, Department == "Other")
-##View(Other)
+Other <- filter(engDeptData, is.na(Department))
+View(Other)
 
-##Keep only eng departments
-engData <- filter(AlbertaData, Department != "Other")
+##Keep only eng departments and output data to file
+finalEngData <- engDeptData[complete.cases(engDeptData), ]
+engDataDD <- unique(select(finalEngData, UT, DT, TC, PY, Department))
+write.csv(engDataDD, "Alberta.csv", quote = TRUE, row.names = FALSE)
 ```
 Whole counting is used, such that each publication is counted only once for the institution, but articles with authors from different departments will count toward the totals for each of those departments.
 
 ##Results
 Number of articles per year
-```{r filter and group data}
-deptData <- group_by(engData, Department) 
-fourDepts <- filter(deptData, Department != "Biomedical Engineering")
+##```{r filter and group data}
+##deptData <- group_by(engData, Department) 
+##fourDepts <- filter(deptData, Department != "Biomedical Engineering")
 
 ## set colour scheme for charts
-cbpalette <- viridis(5)
+##cbpalette <- viridis(5)
 ```
 
 With BioMed:
 
 ```{r include = TRUE, echo = FALSE}
-ppy <- ggplot(unique(deptData), aes(PY)) 
-ppy + geom_bar(aes(fill=Department)) + theme_bw(base_family = "Times") + labs(title = "Articles per Year, by Department", x = "Publication Year", y = "Articles") + theme(plot.title = element_text(hjust = 0.5), legend.position = "bottom", legend.direction = "vertical", legend.title.align = 0.5) + scale_fill_manual(values = cbpalette, guide = guide_legend(ncol=2)) 
+##ppy <- ggplot(unique(deptData), aes(PY)) 
+##ppy + geom_bar(aes(fill=Department)) + theme_bw(base_family = "Times") + labs(title = "Articles per Year, by Department", x = "Publication Year", y = "Articles") + theme(plot.title = element_text(hjust = 0.5), legend.position = "bottom", legend.direction = "vertical", legend.title.align = 0.5) + scale_fill_manual(values = cbpalette, guide = guide_legend(ncol=2)) 
 ```
 
 Without BioMed:
 
 ```{r include = TRUE, echo = FALSE}
-ppy4<- ggplot(unique(fourDepts), aes(PY)) 
-ppy4 + geom_bar(aes(fill=Department)) + theme_minimal(base_family = "Times") + labs(title = "Articles per Year, by Department", x = "Publication Year", y = "Articles") + scale_fill_manual(values = cbpalette[2:5], guide = guide_legend(ncol=2)) + theme(plot.title = element_text(hjust = 0.5), legend.position = "bottom", legend.direction = "vertical", legend.title.align = 0.5)
+##ppy4<- ggplot(unique(fourDepts), aes(PY)) 
+##ppy4 + geom_bar(aes(fill=Department)) + theme_minimal(base_family = "Times") + labs(title = "Articles per Year, by Department", x = "Publication Year", y = "Articles") + scale_fill_manual(values = cbpalette[2:5], guide = guide_legend(ncol=2)) + theme(plot.title = element_text(hjust = 0.5), legend.position = "bottom", legend.direction = "vertical", legend.title.align = 0.5)
 ```
 ```{r create tables, include = TRUE, echo = FALSE, results='asis'}
-attach(engData)
-deptTable <- table(Department, PY)
-kable(deptTable)
+##attach(engData)
+##deptTable <- table(Department, PY)
+##kable(deptTable)
 
 ```
 
@@ -188,15 +124,14 @@ Mean number of citations per publication
 
 ```{r citation summary, include = TRUE, echo = FALSE, results='asis'}
 ## Report number of citations per department
-kable(summarise(deptData, 'Times Cited' = mean(TC)), digits = 2)
-
+##kable(summarise(deptData, 'Times Cited' = mean(TC)), digits = 2)
 ```
 
 Mean citations per article using only document type "article"
 
 ```{r article citation summary, include = TRUE, echo = FALSE, results='asis'}
-articleData <- filter(deptData, DT == "ARTICLE ")
-kable(summarise(articleData, 'Times Cited' = mean(TC)), digits = 2)
+##articleData <- filter(deptData, DT == "ARTICLE ")
+##kable(summarise(articleData, 'Times Cited' = mean(TC)), digits = 2)
 ```
 
 
