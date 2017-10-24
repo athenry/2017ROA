@@ -25,11 +25,11 @@ count <- sum(str_count(mydataCM$C1, ";"))
 ifelse(count + nrow(mydataCM) == nrow(tidy_dataCM), "No drops", "Warning") 
 
 ## Remove non-CarnegieMellon and non-engineering addresses
-CMData <- tidy_dataCM[grep("UNIV CarnegieMellon", tidy_dataCM$C1), ]
-CMData <- CMData[grep("ENGN", CMData$C1), ]
+CMData <- tidy_dataCM[grep("CARNEGIE MELLON UNIV", tidy_dataCM$C1), ]
+##CMData <- CMData[grep("ENGN", CMData$C1), ]
 
 ## Assign Departmental affiliations
-deptURL <- "https://docs.google.com/spreadsheets/d/e/2PACX-1vTMpIJn2N9pV13zRhYKRdOOAUfvHhKF6dqUzMWhnk3_eaBgPD8XT6UJBuAXfyoWfA0qfvaO4LyQpfJA/pub?gid=164215798&single=true&output=csv"
+deptURL <- "https://docs.google.com/spreadsheets/d/e/2PACX-1vTMpIJn2N9pV13zRhYKRdOOAUfvHhKF6dqUzMWhnk3_eaBgPD8XT6UJBuAXfyoWfA0qfvaO4LyQpfJA/pub?gid=672956973&single=true&output=csv"
 
 depts <- read.csv(deptURL)
 abs <- as.character(depts$Abbreviation)
@@ -43,6 +43,8 @@ engDeptData <- merge(CMData, depts, all.x = TRUE) ##keeps nonmatches and enters 
 ## check the "other"s for articles that should be kept
 Other <- filter(engDeptData, is.na(Department))
 View(Other)
+engMiss<- Other[grep("ENGN", Other$C1), ]
+View(engMiss)
 
 ##Keep only eng departments and output data to file
 finalEngData <- engDeptData[complete.cases(engDeptData), ]
