@@ -25,7 +25,8 @@ count <- sum(str_count(mydataCUB$C1, ";"))
 ifelse(count + nrow(mydataCUB) == nrow(tidy_dataCUB), "No drops", "Warning") 
 
 ## Remove non-CU Boulder addresses
-CUBData <- tidy_dataCUB[grep("CARNEGIE MELLON UNIV", tidy_dataCUB$C1), ]
+CUBData <- tidy_dataCUB[grep("UNIV COLORADO", tidy_dataCUB$C1), ]
+CUBData <- CUBData[grep("BOULDER", CUBData$C1), ]
 
 ## Assign Departmental affiliations
 deptURL <- "https://docs.google.com/spreadsheets/d/e/2PACX-1vTMpIJn2N9pV13zRhYKRdOOAUfvHhKF6dqUzMWhnk3_eaBgPD8XT6UJBuAXfyoWfA0qfvaO4LyQpfJA/pub?gid=654946467&single=true&output=csv"
