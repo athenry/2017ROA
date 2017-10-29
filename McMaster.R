@@ -27,24 +27,22 @@ ifelse(count + nrow(mydataMcM) == nrow(tidy_dataMcM), "No drops", "Warning")
 ## Remove non-McMaster addresses
 McMData <- tidy_dataMcM[grep("MCMASTER UNIV", tidy_dataMcM$C1), ]
 
-McMData$Department <- ifelse(grepl(" CHEM ", McMData$C1), "Chemical and Petroleum Engineering",
-                                ifelse(grepl(" CIVIL ", McMData$C1), "Civil Engineering",
-                                       ifelse(grepl(" ELECT ", McMData$C1), "Electrical and Computer Engineering",
-                                              ifelse(grepl(" MECH ", McMData$C1), "Mechanical  and Manufacturing Engineering",
-                                                     ifelse(grepl(" SOFTWARE ", McMData$C1), "Computing and Software",
-                                                            ifelse(grepl(" MAT ", McMData$C1), "Materials Science and Engineering",
-                                                                 ifelse(grepl(" ENGN PHYS", McMData$C1), "Engineering Physics",
-                                                                        ifelse(grepl(" BIOMED ", McMData$C1), "School of Biomedical Engineering",
-                                                                               ifelse(grepl("SCH ENGN TECHNOL", McMData$C1), "School of Engineering Practice and Techology",
-                                                                   "Other")))))))))
+deptURL <- "https://docs.google.com/spreadsheets/d/e/2PACX-1vTMpIJn2N9pV13zRhYKRdOOAUfvHhKF6dqUzMWhnk3_eaBgPD8XT6UJBuAXfyoWfA0qfvaO4LyQpfJA/pub?gid=1500842562&single=true&output=csv"
+depts <- read.csv(deptURL)
 
-## check the "other"s for articles that should be kept
-Other <- filter(McMData, Department == "Other")
+abs <- as.character(depts$Abbreviation)
+dept_test <- sapply(McMData$C1, function(x) abs[str_detect(x, abs)])
+
+McMData<-cbind(McMData,plyr::ldply(dept_test,rbind)[,1])
+names(McMData)[6]<-"Abbreviation"
+engDeptData <- merge(McMData, depts, all.x = TRUE) ##keeps nonmatches and enters NA
+
+## check the NAs for articles that should be kept
+Other <- filter(engDeptData, is.na(Department))
 View(Other)
+engMiss <- Other[grep("ENGN", Other$C1), ]
 
-##Keep only eng departments
-engDataMcM <- filter(McMData, Department != "Other")
-
-##Remove departmental duplicates (leave institutional duplicates)
-engDataDD <- unique(select(engDataMcM, UT, DT, TC, PY, Department))
+## Keep only eng departments and output data to file
+finalEngData <- engDeptData[complete.cases(engDeptData), ]
+engDataDD <- unique(select(finalEngData, UT, DT, TC, PY, Department))
 write.csv(engDataDD, "McMaster.csv", quote = TRUE, row.names = FALSE)
