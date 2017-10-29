@@ -28,19 +28,21 @@ ifelse(count + nrow(mydataMB) == nrow(tidy_dataMB), "No drops", "Warning")
 MBData <- tidy_dataMB[grep("UNIV MANITOBA", tidy_dataMB$C1), ]
 engDataMB <- MBData[grep("ENGN", MBData$C1), ]
 
-engDataMB$Department <- ifelse(grepl(" CIVIL ", engDataMB$C1), "Civil Engineering",
-                                   ifelse(grepl(" ELECT ", engDataMB$C1), "Electrical and Computer Engineering",
-                                          ifelse(grepl(" MECH", engDataMB$C1), "Mechanical  Engineering",
-                                                 ifelse(grepl(" BIOSYST", engDataMB$C1), "Biosystems Engineering", 
-                                                 "Other"))))
+deptURL <- "https://docs.google.com/spreadsheets/d/e/2PACX-1vTMpIJn2N9pV13zRhYKRdOOAUfvHhKF6dqUzMWhnk3_eaBgPD8XT6UJBuAXfyoWfA0qfvaO4LyQpfJA/pub?gid=1535262908&single=true&output=csv"
+depts <- read.csv(deptURL)
+
+abs <- as.character(depts$Abbreviation)
+dept_test <- sapply(engDataMB$C1, function(x) abs[str_detect(x, abs)])
+
+engDataMB<-cbind(engDataMB,plyr::ldply(dept_test,rbind)[,1])
+names(engDataMB)[6]<-"Abbreviation"
+engDeptData <- merge(engDataMB, depts, all.x = TRUE) ##keeps nonmatches and enters NA
 
 ## check the "other"s for articles that should be kept
-Other <- filter(engDataMB, Department == "Other")
+Other <- filter(engDeptData, is.na(Department))
 View(Other)
 
-##Keep only eng departments
-engDataMB <- filter(engDataMB, Department !="Other")
-
-##Remove departmental duplicates (leave institutional duplicates)
-engDataDD <- unique(select(engDataMB, UT, DT, TC, PY, Department))
+## Keep only eng departments and output data to file
+finalEngData <- engDeptData[complete.cases(engDeptData), ]
+engDataDD <- unique(select(finalEngData, UT, DT, TC, PY, Department))
 write.csv(engDataDD, "Manitoba.csv", quote = TRUE, row.names = FALSE)
