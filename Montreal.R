@@ -30,31 +30,23 @@ engDataMtl <- MtlData[grep("ENGN", MtlData$C1), ]
 genieDataMtl <- MtlData[grep("GENIE", MtlData$C1), ]
 fullDataMtl <- rbind(engDataMtl, genieDataMtl)
 
-fullDataMtl$Department <- ifelse(grepl(" CIVIL", fullDataMtl$C1), "Civil, Geological and Mining Engineering",
-                                 ifelse(grepl(" ELECT", fullDataMtl$C1), "Electrical Engineering",
-                                          ifelse(grepl(" MECH", fullDataMtl$C1), "Mechanical  Engineering",
-                                                 ifelse(grepl(" MECAN", fullDataMtl$C1), "Mechanical Engineering",
-                                                        ifelse(grepl(" CHEM", fullDataMtl$C1), "Chemical Engineering",
-                                                               ifelse(grepl(" CHIM", fullDataMtl$C1), "Chemical Engineering",
-                                                                      ifelse(grepl(" MATH", fullDataMtl$C1), "Mathematics and Industrial Engineering",
-                                                                             ifelse(grepl("COMP SCI", fullDataMtl$C1), "Computer Engineering",
-                                                                                    ifelse(grepl(" PHYS", fullDataMtl$C1), "Engineering Physics",
-                                                                                           ifelse(grepl(" BIOMED", fullDataMtl$C1), "Institute of Biomedical Engineering",
-                                                                                                  ifelse(grepl(" COMP ", fullDataMtl$C1), "Computer Engineering",
-                                                                                                         ifelse(grepl(" IND", fullDataMtl$C1), "Mathematics and Industrial Engineering",
-                                                                                                                ifelse(grepl(" SOFTWARE ", fullDataMtl$C1), "Computer Engineering",
-                                                                                                                       ifelse(grepl(" NUCL", fullDataMtl$C1), "Institute of Nuclear Engineering",
-                                                                                                                              ifelse(grepl(" INFORMAT", fullDataMtl$C1), "Computer Engineering",
-                                                                                                                                     ifelse(grepl(" SURFACE", fullDataMtl$C1), "Engineering Physics",
-                                                                                           "Other"))))))))))))))))
+## assign departmental affiliation
+
+deptURL <- "https://docs.google.com/spreadsheets/d/e/2PACX-1vTMpIJn2N9pV13zRhYKRdOOAUfvHhKF6dqUzMWhnk3_eaBgPD8XT6UJBuAXfyoWfA0qfvaO4LyQpfJA/pub?gid=69469653&single=true&output=csv"
+depts <- read.csv(deptURL)
+
+abs <- as.character(depts$Abbreviation)
+dept_test <- sapply(fullDataMtl$C1, function(x) abs[str_detect(x, abs)])
+
+fullDataMtl<-cbind(fullDataMtl,plyr::ldply(dept_test,rbind)[,1])
+names(fullDataMtl)[6]<-"Abbreviation"
+engDeptData <- merge(fullDataMtl, depts, all.x = TRUE) ##keeps nonmatches and enters NA
 
 ## check the "other"s for articles that should be kept
-Other <- filter(fullDataMtl, Department == "Other")
+Other <- filter(engDeptData, is.na(Department))
 View(Other)
 
-##Keep only eng departments
-fullDataMtl <- filter(fullDataMtl, Department !="Other")
-
 ##Remove departmental duplicates (leave institutional duplicates)
-engDataDD <- unique(select(fullDataMtl, UT, DT, TC, PY, Department))
+finalEngData <- engDeptData[complete.cases(engDeptData), ]
+engDataDD <- unique(select(finalEngData, UT, DT, TC, PY, Department))
 write.csv(engDataDD, "Montreal.csv", quote = TRUE, row.names = FALSE)
