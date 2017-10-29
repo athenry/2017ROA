@@ -24,28 +24,24 @@ tidy_dataMcG <- cSplit(mydataMcG, "C1", sep = ";", direction = "long")
 count <- sum(str_count(mydataMcG$C1, ";"))
 ifelse(count + nrow(mydataMcG) == nrow(tidy_dataMcG), "No drops", "Warning") 
 
-## Remove non-McG and non-ENGN addresses
+## Remove non-McGill addresses
 McGData <- tidy_dataMcG[grep("MCGILL UNIV", tidy_dataMcG$C1), ]
 
-McGData$Department <- ifelse(grepl(" CIVIL ", McGData$C1), "Civil Engineering and Applied Mechanics",
-                               ifelse(grepl(" ELECT ", McGData$C1), "Electrical and Computer Engineering",
-                                      ifelse(grepl(" MECH", McGData$C1), "Mechanical  Engineering",
-                                             ifelse(grepl(" BIOMED", McGData$C1), "Bioengineering", 
-                                                    ifelse(grepl(" MIN ", McGData$C1), "Mining and Materials Engineering",
-                                                           ifelse(grepl(" CHEM ", McGData$C1), "Chemical Engineering",
-                                                                  ifelse(grepl(" BIORESOURCE ", McGData$C1), "Bioengineering",
-                                                                         ifelse(grepl(" MAT ", McGData$C1), "Mining and Materials Engineering",
-                                                                                ifelse(grepl(" BIOENGN", McGData$C1), "Bioengineering",
-                                                                                       ifelse(grepl(" URBAN PLANNING", McGData$C1), "School of Urban Planning",
-                                                    "Other"))))))))))
+deptURL <- "https://docs.google.com/spreadsheets/d/e/2PACX-1vTMpIJn2N9pV13zRhYKRdOOAUfvHhKF6dqUzMWhnk3_eaBgPD8XT6UJBuAXfyoWfA0qfvaO4LyQpfJA/pub?gid=296876605&single=true&output=csv"
+depts <- read.csv(deptURL)
+
+abs <- as.character(depts$Abbreviation)
+dept_test <- sapply(McGData$C1, function(x) abs[str_detect(x, abs)])
+
+McGData<-cbind(McGData,plyr::ldply(dept_test,rbind)[,1])
+names(McGData)[6]<-"Abbreviation"
+engDeptData <- merge(McGData, depts, all.x = TRUE) ##keeps nonmatches and enters NA
 
 ## check the "other"s for articles that should be kept
-Other <- filter(McGData, Department == "Other")
+Other <- filter(engDeptData, is.na(Department))
 View(Other)
 
-##Keep only eng departments
-engDataMcG <- filter(McGData, Department !="Other")
-
-##Remove departmental duplicates (leave institutional duplicates)
-engDataDD <- unique(select(McGData, UT, DT, TC, PY, Department))
+## Keep only eng departments and output data to file
+finalEngData <- engDeptData[complete.cases(engDeptData), ]
+engDataDD <- unique(select(finalEngData, UT, DT, TC, PY, Department))
 write.csv(engDataDD, "McGill.csv", quote = TRUE, row.names = FALSE)
