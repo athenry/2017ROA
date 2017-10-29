@@ -30,24 +30,22 @@ engDataLaval <- LavalData[grep("ENGN", LavalData$C1), ]
 genieDataLaval <- LavalData[grep("GENIE", LavalData$C1), ]
 fullDataLaval <- rbind(engDataLaval, genieDataLaval)
 
-fullDataLaval$Department <- ifelse(grepl(" CIVIL ", fullDataLaval$C1), "Civil Engineering and Water  Engineering",
-                                ifelse(grepl(" ELECT ", fullDataLaval$C1), "Electrical and Computer Engineering",
-                                       ifelse(grepl(" MECH", fullDataLaval$C1), "Mechanical  Engineering",
-                                             ifelse(grepl(" CHEM", fullDataLaval$C1), "Chemical Engineering",
-                                                    ifelse(grepl("MIN MET ", fullDataLaval$C1), "Mineral, Metallurgical and Materials Engineering",
-                                                           ifelse(grepl("COMP SCI", fullDataLaval$C1), "Computer and Software Engineering",
-                                                                  ifelse(grepl("GEOL ", fullDataLaval$C1), "Geology and Geological Engineering",
-                                                                         ifelse(grepl("PHYS ", fullDataLaval$C1), "Physics, Engineering Physics and Optics",
-                                                                               ifelse(grepl("MET ", fullDataLaval$C1), "Mineral, Metallurgical and Materials Engineering",
-                                                                  "Other")))))))))
+## Assign departmental affiliation
+deptURL <- "https://docs.google.com/spreadsheets/d/e/2PACX-1vTMpIJn2N9pV13zRhYKRdOOAUfvHhKF6dqUzMWhnk3_eaBgPD8XT6UJBuAXfyoWfA0qfvaO4LyQpfJA/pub?gid=240286264&single=true&output=csv"
+depts <- read.csv(deptURL)
+
+abs <- as.character(depts$Abbreviation)
+dept_test <- sapply(fullDataLaval$C1, function(x) abs[str_detect(x, abs)])
+
+fullDataLaval<-cbind(fullDataLaval, plyr::ldply(dept_test,rbind)[,1])
+names(fullDataLaval)[6]<-"Abbreviation"
+fullDataLaval <- merge(fullDataLaval, depts, all.x = TRUE) ##keeps nonmatches and enters NA
 
 ## check the "other"s for articles that should be kept
-Other <- filter(fullDataLaval, Department == "Other")
+Other <- filter(fullDataLaval, is.na(Department))
 View(Other)
 
-##Keep only eng departments
-fullDataLaval <- filter(fullDataLaval, Department !="Other")
-
-##Remove departmental duplicates (leave institutional duplicates)
-engDataDD <- unique(select(fullDataLaval, UT, DT, TC, PY, Department))
+## ##Keep only eng departments and output data to file
+finalEngData <- fullDataLaval[complete.cases(fullDataLaval), ]
+engDataDD <- unique(select(finalEngData, UT, DT, TC, PY, Department))
 write.csv(engDataDD, "Laval.csv", quote = TRUE, row.names = FALSE)
