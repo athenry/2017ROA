@@ -28,26 +28,24 @@ ifelse(count + nrow(mydataDal) == nrow(tidy_dataDal), "No drops", "Warning")
 DalData <- tidy_dataDal[grep("DALHOUSIE UNIV", tidy_dataDal$C1), ]
 engDataDal <- DalData[grep("ENGN", DalData$C1), ]
 
-engDataDal$Department <- ifelse(grepl(" CIVIL ", engDataDal$C1), "Civil and Resource Engineering",
-                                       ifelse(grepl(" ELECT ", engDataDal$C1), "Electrical and Computer Engineering",
-                                              ifelse(grepl(" MECH", engDataDal$C1), "Mechanical  Engineering",
-                                                     ifelse(grepl(" IND ", engDataDal$C1), "Industrial Engineering",
-                                                            ifelse(grepl(" BIOMED ", engDataDal$C1), "Biomedical Engineering",
-                                                                   ifelse(grepl(" PROC ", engDataDal$C1), "Process Engineering and Applied Science",
-                                                                          ifelse(grepl("ENGN MATH", engDataDal$C1), "Engineering Mathematics and Internetworking",
-                                                                                 ifelse(grepl(" CHEM", engDataDal$C1), "Process Engineering and Applied Science",
-                                                                                        ifelse(grepl("INTERNETWORKING", engDataDal$C1), "Engineering Mathematics and Internetworking",
-                                                                                               ifelse(grepl("ENVIRONM", engDataDal$C1), "Process Engineering and Applied Science",
-                                                                                                      ifelse(grepl(" TRURO", engDataDal$C1), "Truro Campus",
-                                                                          "Other")))))))))))
+deptURL <- "https://docs.google.com/spreadsheets/d/e/2PACX-1vTMpIJn2N9pV13zRhYKRdOOAUfvHhKF6dqUzMWhnk3_eaBgPD8XT6UJBuAXfyoWfA0qfvaO4LyQpfJA/pub?gid=134374484&single=true&output=csv"
+depts <- read.csv(deptURL)
+
+abs <- as.character(depts$Abbreviation)
+dept_test <- sapply(engDataDal$C1, function(x) abs[str_detect(x, abs)])
+
+engDataDal<-cbind(engDataDal,plyr::ldply(dept_test,rbind)[,1])
+names(engDataDal)[6]<-"Abbreviation"
+engDeptData <- merge(engDataDal, depts, all.x = TRUE) ##keeps nonmatches and enters NA
 
 ## check the "other"s for articles that should be kept
-Other <- filter(engDataDal, Department == "Other")
+Other <- filter(engDeptData, is.na(Department))
 View(Other)
 
 ##Keep only eng departments
-engDataDal <- filter(engDataDal, Department !="Other", Department !="Truro Campus")
+engDeptData <- filter(engDeptData, Department !="Truro Campus")
+finalEngData <- engDeptData[complete.cases(engDeptData), ]
 
 ##Remove departmental duplicates (leave institutional duplicates)
-engDataDD <- unique(select(engDataDal, UT, DT, TC, PY, Department))
+engDataDD <- unique(select(finalEngData, UT, DT, TC, PY, Department))
 write.csv(engDataDD, "Dalhousie.csv", quote = TRUE, row.names = FALSE)
