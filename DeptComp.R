@@ -214,3 +214,12 @@ chemmatAF <- cbind(chemmatAPY[1], round(chemmatAPY[-1]/chemmatFac[-1],1))
 civilAF <- cbind(civilAPY[1], round(civilAPY[-1]/civilFac[-1], 1))
 elecAF <- cbind(elecAPY[1], round(elecAPY[-1]/elecFac[-1], 1))
 mechAF <- cbind(mechAPY[1], round(mechAPY[-1]/mechFac[-1], 1))
+
+## Calculate at institutional level for other U15 schools
+rest <- rbind(Alberta, Dalhousie, Laval, Manitoba, McGill, Queens, Saskatchewan, UBC)
+restCt <- count(rest, School)
+
+restFac <- read.csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vRrKjvLcFtlRq5_iTQDl30fFM2p9DAlDMs2dbD_7UMIj42VW6CCKqxkteASf-znTvFAJjNfCPR7og4d/pub?gid=130161287&single=true&output=csv")
+
+restAF5 <- cbind(restCt[1], round(restCt[-1]/restFac[-1], 1))
+restAF <- transform(restAF5, n=n/5)

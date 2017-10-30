@@ -113,7 +113,7 @@ Publication data was grouped by department to facilitate disciplinary comparison
 ```{r departmental sorting}
 civil <- rbind(filter(Alberta, Department == "Civil and Environmental Engineering"), filter(Calgary, Department == "Civil Engineering"| Department == "Geomatics Engineering"), filter(Dalhousie, Department == "Civil and Resource Engineering"), filter(Laval, Department == "Civil Engineering and Water Engineering" | Department == "Geology and Geological Engineering"), filter(Manitoba, Department == "Civil Engineering"), filter (McGill, Department == "Civil Engineering and Applied Mechanics" | Department == "Mining and Materials Engineering"), filter(McMaster, Department == "Civil Engineering"), filter(Montreal, Department == "Civil Geological and Mining Engineering"), filter(Ottawa, Department == "Civil Engineering"), filter(Queens, Department =="Civil Engineering" | Department == "Robert M. Buchan Department of Mining" | Department == "Geological Engineering"), filter(Saskatchewan, Department == "Civil, Geological and Environmental Engineering"), filter(Toronto, Department == "Civil and Mineral Engineering"), filter(UBC, Department == "Civil Engineering" | Department == "Keevil Institute of Mining Engineering"), filter(Waterloo, Department == " Civil & Environmental Engineering"), filter(Western, Department =="Civil and Environmental Engineering"))
 
-chemmat <- rbind(filter(Alberta, Department == "Chemical and Materials Engineering"), filter(Calgary, Department == "Chemical and Petroleum"), filter(Dalhousie, Department == "Process Engineering & Applied Science"), filter(Laval, Department =="Chemical Engineering" | Department == "Mineral, Metallurgical, and Materials Engineering"), filter(McGill, Department == "Chemical Engineering" | Department == "Mining and Materials Engineering"), filter(McMaster, Department == "Chemical Engineering" | Department == "Materials Science and Engineering"), filter(Montreal, Department == "Chemical Engineering"), filter(Ottawa, Department =="Chemical and Biological Engineering"), filter(Queens, Department == "Chemical Engineering" | Department == "Mechanical and Materials Engineering"), filter(Saskatchewan, Department == "Chemical and Biological Engineering"), filter(Toronto, Department == "Chemical Engineering & Applied Chemistry" | Department == "Materials Science & Engineering"), filter(UBC, Department == "Chemical and Biological Engineering" | Department == "Materials Engineering"), filter(Waterloo, Department == "Chemical Engineering"), filter(Western, Department == "Chemical and Biomedical Engineering" | Department == "Mechanical and Materials Engineering"))
+chemmat <- rbind(filter(Alberta, Department == "Chemical and Materials Engineering"), filter(Calgary, Department == "Chemical and Petroleum Engineering"), filter(Dalhousie, Department == "Process Engineering & Applied Science"), filter(Laval, Department =="Chemical Engineering" | Department == "Mineral, Metallurgical, and Materials Engineering"), filter(McGill, Department == "Chemical Engineering" | Department == "Mining and Materials Engineering"), filter(McMaster, Department == "Chemical Engineering" | Department == "Materials Science and Engineering"), filter(Montreal, Department == "Chemical Engineering"), filter(Ottawa, Department =="Chemical and Biological Engineering"), filter(Queens, Department == "Chemical Engineering" | Department == "Mechanical and Materials Engineering"), filter(Saskatchewan, Department == "Chemical and Biological Engineering"), filter(Toronto, Department == "Chemical Engineering & Applied Chemistry" | Department == "Materials Science & Engineering"), filter(UBC, Department == "Chemical and Biological Engineering" | Department == "Materials Engineering"), filter(Waterloo, Department == "Chemical Engineering"), filter(Western, Department == "Chemical and Biomedical Engineering" | Department == "Mechanical and Materials Engineering"))
 
 mechanical <- rbind(filter(Alberta, Department == "Mechanical Engineering"), filter(Calgary, Department == "Mechanical and Manufacturing Engineering"), filter(Dalhousie, Department == "Mechanical Engineering"), filter(Laval, Department =="Mechanical Engineering"), filter(Manitoba, Department == "Mechanical Engineering"), filter(McGill, Department == "Mechanical Engineering"), filter(McMaster, Department == "Mechanical Engineering"), filter(Montreal, Department == "Mechanical Engineering"), filter(Ottawa, Department =="Mechanical Engineering"), filter(Queens, Department == "Mechanical and Materials Engineering"), filter(Saskatchewan, Department == "Mechanical Engineering"), filter(Toronto, Department == "Mechanical & Industrial Engineering"), filter(UBC, Department == "Mechanical Engineering"), filter(Waterloo, Department == "Mechanical & Mechatronics Engineering"), filter(Western, Department == "Mechanical and Materials Engineering"))
 
@@ -156,10 +156,99 @@ kable(arrange(mechAY, desc(mechAY$`2016`)), caption = "Articles per year - Mecha
 
 Annual faculty numbers were not available for all Alberta departments, nor for all institutions. Departmental-level Articles/year/faculty was calculated for 8 of the 15 Canadian schools. This calculation was also done at the overall institution level for the other 7 schools.
 
-```{r output-per-faculty}
+```{r output-per-faculty, include = TRUE, echo = FALSE, results='asis'}
+## Articles per year per faculty
 AlbertaFac <- read.csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vT04KVZbmDhkrE43WSPjYgx2kKEgUdApH_z4UawFtmDKhu4sYhOaiMdZH0fdo3zo6rSSimAg7HXa7xc/pub?gid=1250905174&single=true&output=csv")
 names(AlbertaFac) <- c("Department", "2012", "2013", "2014", "2015", "2016")
+AlbertaFac$School <- "Alberta"
 
+CalgaryFac <- read.csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vT04KVZbmDhkrE43WSPjYgx2kKEgUdApH_z4UawFtmDKhu4sYhOaiMdZH0fdo3zo6rSSimAg7HXa7xc/pub?gid=1767152235&single=true&output=csv")
+names(CalgaryFac) <- c("Department", "2012", "2013", "2014", "2015", "2016")
+CalgaryFac$School <- "Calgary"
+
+McMasterFac <- read.csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vT04KVZbmDhkrE43WSPjYgx2kKEgUdApH_z4UawFtmDKhu4sYhOaiMdZH0fdo3zo6rSSimAg7HXa7xc/pub?gid=377980857&single=true&output=csv")
+names(McMasterFac) <- c("Department", "2012", "2013", "2014", "2015", "2016")
+McMasterFac$School <- "McMaster"
+
+MontrealFac <- read.csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vT04KVZbmDhkrE43WSPjYgx2kKEgUdApH_z4UawFtmDKhu4sYhOaiMdZH0fdo3zo6rSSimAg7HXa7xc/pub?gid=1362062123&single=true&output=csv")
+names(MontrealFac) <- c("Department", "2012", "2013", "2014", "2015", "2016")
+MontrealFac$School <- "Montreal"
+
+OttawaFac <- read.csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vT04KVZbmDhkrE43WSPjYgx2kKEgUdApH_z4UawFtmDKhu4sYhOaiMdZH0fdo3zo6rSSimAg7HXa7xc/pub?gid=391352894&single=true&output=csv")
+names(OttawaFac) <- c("Department", "2012", "2013", "2014", "2015", "2016")
+OttawaFac$School <- "Ottawa"
+
+TorontoFac <- read.csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vT04KVZbmDhkrE43WSPjYgx2kKEgUdApH_z4UawFtmDKhu4sYhOaiMdZH0fdo3zo6rSSimAg7HXa7xc/pub?gid=636662368&single=true&output=csv")
+names(TorontoFac) <- c("Department", "2012", "2013", "2014", "2015", "2016")
+TorontoFac$School <- "Toronto"
+
+WaterlooFac <- read.csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vT04KVZbmDhkrE43WSPjYgx2kKEgUdApH_z4UawFtmDKhu4sYhOaiMdZH0fdo3zo6rSSimAg7HXa7xc/pub?gid=1597376299&single=true&output=csv")
+names(WaterlooFac) <- c("Department", "2012", "2013", "2014", "2015", "2016")
+WaterlooFac$School <- "Waterloo"
+
+WesternFac <- read.csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vT04KVZbmDhkrE43WSPjYgx2kKEgUdApH_z4UawFtmDKhu4sYhOaiMdZH0fdo3zo6rSSimAg7HXa7xc/pub?gid=757635134&single=true&output=csv")
+names(WesternFac) <- c("Department", "2012", "2013", "2014", "2015", "2016")
+WesternFac$School <- "Western" 
+
+chemmatFac <- rbind(filter(AlbertaFac, Department == "Chemical and Materials Engineering"), filter(CalgaryFac, Department == "Chemical and Materials Engineering"), filter(McMasterFac, Department == "Chemical Engineering" | Department == "Materials Science and Engineering"), filter(MontrealFac, Department == "Chemical engineering"), filter(OttawaFac, Department == "Chemical & Biological"), filter(TorontoFac, Department == "Department of Chemical Engineering and Applied Chemistry" | Department == "Department of Materials Science and Engineering"), filter(WaterlooFac, Department == "Chemical Engineering"), filter(WesternFac, Department == "Chemical and Biochemical Engineering"))
+
+civilFac <- rbind(filter(AlbertaFac, Department == "Civil Engineering"), filter(CalgaryFac, Department == "Civil Engineering" | Department == "Geomatics Engineering"), filter(McMasterFac, Department == "Civil Engineering"), filter(MontrealFac, Department == "Civil, geological and mining engineering"), filter(OttawaFac, Department == "Civil" | Department == "Environmental Engineering"), filter(TorontoFac, Department == "Department of Civil Engineering" | Department == "Lassonde Institute of Mining"), filter(Waterloo, Department == "Civil and Environmental Engineering"), filter(WesternFac, Department == "Civil & Environmental Engineering"))
+
+elecFac <- rbind(filter(AlbertaFac, Department == "Electrical and Computer Engineering"), filter(CalgaryFac, Department == "Electrical & Computer Engineering"), filter(McMasterFac, Department == "Electrical and Computer Engineering" | Department == "Computing and Software"), filter(MontrealFac, Department == "Electrical engineering" | Department == "Computer and Software Engineering"), filter(OttawaFac, Department == "Electrical Engineering and Computer Science"), filter(TorontoFac, Department == "Edward S. Rogers Sr. Department of Electrical and Computer Engineering"), filter(WaterlooFac, Department == "Electrical and Computer Engineering"), filter(WesternFac, Department == "Electrical and Computer Engineering"))
+
+mechFac <- rbind(filter(AlbertaFac, Department == "Mechanical Engineering"), filter(CalgaryFac, Department == "Mechanical & Manufacturing Engineering"), filter(McMasterFac, Department == "Mechanical Engineering"), filter(MontrealFac, Department == "Mechanical engineering"), filter(OttawaFac, Department == "Mechanical"), filter(TorontoFac, Department == "Department of Mechanical and Industrial Engineering"), filter(Waterloo, Department == "Mechanical and Mechatronics Engineering"), filter(WesternFac, Department == "Mechanical and Materials Engineering"))
+
+chemmatFacCt <- gather(chemmatFac, key = PY, value = Fac, -Department, -School) %>%
+        group_by(School, PY) %>%
+        summarise(Fac = sum(Fac))
+
+CivilFacCt <- gather(civilFac, key = PY, value = Fac, -Department, -School) %>%
+        group_by(School, PY) %>%
+        summarise(Fac = sum(Fac))
+
+elecFacCt <- gather(elecFac, key = PY, value = Fac, -Department, -School) %>%
+        group_by(School, PY) %>%
+        summarise(Fac = sum(Fac))
+
+mechFacCt <- gather(mechFac, key = PY, value = Fac, -Department, -School) %>%
+        group_by(School, PY) %>%
+        summarise(Fac = sum(Fac))
+
+chemmatFac <- spread(chemmatFacCt, PY, Fac)
+civilFac <- spread(chemmatFacCt, PY, Fac)
+elecFac <- spread(elecFacCt, PY, Fac)
+mechFac <- spread(mechFacCt, PY, Fac)
+
+## Keep the rows for which we have corresponding faculty data
+chemmatAPY <-filter(chemmatAY, School %in% chemmatFac$School)
+civilAPY <- filter(civilAY, School %in% civilFac$School)
+elecAPY <- filter(elecAY, School %in% elecFac$School)
+mechAPY <- filter(mechAY, School %in% mechFac$School)
+
+## Divide number of articles by number of faculty
+chemmatAF <- cbind(chemmatAPY[1], round(chemmatAPY[-1]/chemmatFac[-1],1))
+civilAF <- cbind(civilAPY[1], round(civilAPY[-1]/civilFac[-1], 1))
+elecAF <- cbind(elecAPY[1], round(elecAPY[-1]/elecFac[-1], 1))
+mechAF <- cbind(mechAPY[1], round(mechAPY[-1]/mechFac[-1], 1))
+
+kable(arrange(chemmatAF, desc(chemmatAF$`2016`)), digits = 2, caption = "Articles per faculty member per year - Chemical Engineering")
+
+kable(arrange(civilAF, desc(civilAF$`2016`)), digits = 2, caption = "Articles per faculty member per year - Civil Engineering")
+
+kable(arrange(elecAF, desc(elecAF$`2016`)), digits = 2, caption = "Articles per faculty member per year - Electrical Engineering")
+
+kable(arrange(mechAF, desc(mechAF$`2016`)), digits = 2, caption = "Articles per faculty member per year - Mechanical Engineering")
+
+## Calculate at institutional level for other U15 schools
+rest <- rbind(Alberta, Dalhousie, Laval, Manitoba, McGill, Queens, Saskatchewan, UBC)
+restCt <- count(rest, School)
+
+restFac <- read.csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vRrKjvLcFtlRq5_iTQDl30fFM2p9DAlDMs2dbD_7UMIj42VW6CCKqxkteASf-znTvFAJjNfCPR7og4d/pub?gid=130161287&single=true&output=csv")
+
+restAF5 <- cbind(restCt[1], round(restCt[-1]/restFac[-1], 1))
+restAF <- transform(restAF5, n=n/5)
+
+kable(arrange(restAF, desc(n)), digits = 2, caption = "Average number of articles per faculty member per year, by institution")
 
 ```
 
@@ -187,9 +276,13 @@ mechTC <- mechanical %>%
         summarise('Times Cited' = mean(TC))
 
 kable(arrange(biomedTC, desc(biomedTC$'Times Cited')), digits = 2, caption = "Mean citations per article - Biomedical Engineering")
+
 kable(arrange(chemmatTC, desc(chemmatTC$'Times Cited')), digits = 2, caption = "Mean citations per article - Chemical and Materials Engineering")
+
 kable(arrange(civTC, desc(civTC$'Times Cited')), digits = 2, caption = "Mean citations per article - Civil Engineering")
+
 kable(arrange(elecTC, desc(elecTC$'Times Cited')), digits = 2, caption = "Mean citations per article - Electrical and Computer  Engineering")
+
 kable(arrange(mechTC, desc(mechTC$'Times Cited')), digits = 2, caption = "Mean citations per article - Mechanical Engineering")
 ```
 
