@@ -3,13 +3,12 @@
 ##install.packages("splitstackshape")
 ##install.packages("tidyverse")
 ##install.packages("viridis")
-##install.packages("knitr")
 
 library(splitstackshape)
 library(tidyverse)
 library(stringr)
 library(viridis)
-library(knitr)
+
 
 ## read in U15 publication data from previous process, add school name column to each
 Alberta <- read.csv("Alberta.csv", sep = ",")
@@ -204,4 +203,14 @@ civilFac <- spread(chemmatFacCt, PY, Fac)
 elecFac <- spread(elecFacCt, PY, Fac)
 mechFac <- spread(mechFacCt, PY, Fac)
 
-test <- merge(chemmatAY, chemmatFac, by="School")
+## Keep the rows for which we have corresponding faculty data
+chemmatAPY <-filter(chemmatAY, School %in% chemmatFac$School)
+civilAPY <- filter(civilAY, School %in% civilFac$School)
+elecAPY <- filter(elecAY, School %in% elecFac$School)
+mechAPY <- filter(mechAY, School %in% mechFac$School)
+
+## Divide number of articles by number of faculty
+chemmatAF <- cbind(chemmatAPY[1], round(chemmatAPY[-1]/chemmatFac[-1],1))
+civilAF <- cbind(civilAPY[1], round(civilAPY[-1]/civilFac[-1], 1))
+elecAF <- cbind(elecAPY[1], round(elecAPY[-1]/elecFac[-1], 1))
+mechAF <- cbind(mechAPY[1], round(mechAPY[-1]/mechFac[-1], 1))
