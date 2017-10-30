@@ -2,7 +2,7 @@
 title: "Faculty of Engineering Research Output"
 subtitle: "University of Alberta"
 author: "Alison Henry"
-date: "29 October 2017"
+date: "30 October 2017"
 output:
  word_document:
                 df_print: kable
@@ -108,7 +108,7 @@ Western$School <- "Western"
 Western$School <- as.factor(Western$School)
 
 ```
-Publication data was grouped by department to facilitate disciplinary comparison. Note that he disciplines are grouped differently at different schools, and not all schools have Alberta-equivalent departments. 
+Publication data was grouped by department to facilitate disciplinary comparison. Note that the disciplines are grouped differently at different schools, and not all schools have Alberta-equivalent departments. 
 
 ```{r departmental sorting}
 civil <- rbind(filter(Alberta, Department == "Civil and Environmental Engineering"), filter(Calgary, Department == "Civil Engineering"| Department == "Geomatics Engineering"), filter(Dalhousie, Department == "Civil and Resource Engineering"), filter(Laval, Department == "Civil Engineering and Water Engineering" | Department == "Geology and Geological Engineering"), filter(Manitoba, Department == "Civil Engineering"), filter (McGill, Department == "Civil Engineering and Applied Mechanics" | Department == "Mining and Materials Engineering"), filter(McMaster, Department == "Civil Engineering"), filter(Montreal, Department == "Civil Geological and Mining Engineering"), filter(Ottawa, Department == "Civil Engineering"), filter(Queens, Department =="Civil Engineering" | Department == "Robert M. Buchan Department of Mining" | Department == "Geological Engineering"), filter(Saskatchewan, Department == "Civil, Geological and Environmental Engineering"), filter(Toronto, Department == "Civil and Mineral Engineering"), filter(UBC, Department == "Civil Engineering" | Department == "Keevil Institute of Mining Engineering"), filter(Waterloo, Department == " Civil & Environmental Engineering"), filter(Western, Department =="Civil and Environmental Engineering"))
