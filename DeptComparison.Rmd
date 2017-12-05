@@ -2,7 +2,7 @@
 title: "Faculty of Engineering Research Output"
 subtitle: "University of Alberta"
 author: "Alison Henry"
-date: "30 October 2017"
+date: '`r format(Sys.time(), "%d %B, %Y")`'
 output:
  word_document:
                 df_print: kable
