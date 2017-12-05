@@ -275,6 +275,12 @@ mechTC <- mechanical %>%
         group_by(School) %>% 
         summarise('Times Cited' = mean(TC))
 
+CanTC <- rbind(biomed, chemmat, civil, electrical, mechanical) %>%
+        distinct(UT, School, .keep_all = TRUE) %>%
+        group_by(School) %>%
+        summarise('Times Cited' = mean(TC))
+
+
 kable(arrange(biomedTC, desc(biomedTC$'Times Cited')), digits = 2, caption = "Mean citations per article - Biomedical Engineering")
 
 kable(arrange(chemmatTC, desc(chemmatTC$'Times Cited')), digits = 2, caption = "Mean citations per article - Chemical and Materials Engineering")
@@ -284,7 +290,10 @@ kable(arrange(civTC, desc(civTC$'Times Cited')), digits = 2, caption = "Mean cit
 kable(arrange(elecTC, desc(elecTC$'Times Cited')), digits = 2, caption = "Mean citations per article - Electrical and Computer  Engineering")
 
 kable(arrange(mechTC, desc(mechTC$'Times Cited')), digits = 2, caption = "Mean citations per article - Mechanical Engineering")
+
+kable(arrange(CanTC, desc(CanTC$`Times Cited`)), digits = 2, caption  = "Mean citations per article per school (matching depts only)")
 ```
+
 ##US comparator results
 
 Comparisons were made with select US schools in the same manner.
@@ -468,6 +477,11 @@ UScivilFac <- spread(USchemmatFacCt, PY, Fac)
 USelecFac <- spread(USelecFacCt, PY, Fac)
 USmechFac <- spread(USmechFacCt, PY, Fac)
 
+##Faculty-level calculation
+
+UScomp <- rbind(Alberta, CarnegieMellon, filter(ColoradoBoulder, Department != "Aerospace Engineering Sciences" & Department != "Computer Science"), Duke, filter(Florida, Department == "Biomedical Engineering" | Department == "Chemical Engineering" | Department == "Electrical & Computer Engineering" | Department == "Material Science & Engineering" | Department == "Mechanical & Aerospace Engineering"), filter(GeorgiaTech, Department != "Industrial and Systems Engineering" & Department != "Aerospace Engineering"), filter(IllinoisUC, Department == "Bioengineering" | Department == "Chemical $ Biomolecular Engineering" | Department == "Civil & Environmental Engineering" | Department == "Electrical & Computer Engineering" | Department == "Materials Science & Engineering" | Department == "Mechanical Science and Engineering"), filter(Michigan, Department != "Aerospace Engineering" & Department != "Climate and Space Sciences and Engineering" & Department != "Industrial and Operations Engineering" & Department != "Integrative Systems and Design" & Department != "Naval Architecture and Marine Engineerin" & Department != "Nuclear Engineering and Radiological Sciences"), filter(Minnesota, Department != "Aerospace Engineering and Mechanics" & Department != "Chemistry" & Department != "Earth Sciences" & Department != "School of Mathematics" & Department != "School of Physics and Astronomy"), filter(UTAustin, Department != "Aerospace Engineering and Engineering Mechanics" & Department != "Operations research and Industrial Engineering" & Department != "Texas Engineering Executive Education"), filter(Wisconsin, Department != "Engineering Physics" & Department != "Industrial & Systems Engineering"))
+        
+
 ## Divide number of articles by number of faculty
 USchemmatAF <- cbind(USchemmatAY[1], round(USchemmatAY[-1]/USchemmatFac[-1],1))
 UScivilAF <- cbind(UScivilAY[1], round(UScivilAY[-1]/UScivilFac[-1], 1))
@@ -506,6 +520,11 @@ USmechTC <- mechUS %>%
         group_by(School) %>% 
         summarise('Times Cited' = mean(TC))
 
+USTC <- rbind(biomedUS, chemmatUS, civilUS, elecUS, mechUS) %>%
+        distinct(UT, School, .keep_all = TRUE) %>%
+        group_by(School) %>%
+        summarise('Times Cited' = mean(TC))
+
 kable(arrange(USbiomedTC, desc(USbiomedTC$'Times Cited')), digits = 2, caption = "Mean citations per article - Biomedical Engineering")
 
 kable(arrange(USchemmatTC, desc(USchemmatTC$'Times Cited')), digits = 2, caption = "Mean citations per article - Chemical and Materials Engineering")
@@ -515,6 +534,9 @@ kable(arrange(UScivTC, desc(UScivTC$'Times Cited')), digits = 2, caption = "Mean
 kable(arrange(USelecTC, desc(USelecTC$'Times Cited')), digits = 2, caption = "Mean citations per article - Electrical and Computer  Engineering")
 
 kable(arrange(USmechTC, desc(USmechTC$'Times Cited')), digits = 2, caption = "Mean citations per article - Mechanical Engineering")
+
+kable(arrange(USTC, desc(USTC$'Times Cited')), digits = 2, caption = "Mean citations per article per school (matching departments only")
 ```
+
 ##References
 
