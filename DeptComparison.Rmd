@@ -250,6 +250,20 @@ restAF <- transform(restAF5, n=n/5)
 
 kable(arrange(restAF, desc(n)), digits = 2, caption = "Average number of articles per faculty member per year, by institution")
 
+CanFac <- rbind(chemmatFac, civilFac, elecFac, mechFac) %>%
+        gather(key = PY, value = Fac, -School, na.rm = TRUE) %>%
+        group_by(School, PY) %>%
+        summarise(Fac = sum(Fac)) %>%
+        spread(PY, Fac)
+
+CanComp <- rbind(biomed, chemmat, civil, electrical, mechanical) %>%
+        count(PY, School) %>%
+        spread(PY, n) %>%
+        filter(School %in% CanFac$School)
+
+CanAPF <- cbind(CanComp[1], round(CanComp[-1]/CanFac[-1],1)) 
+
+kable(arrange(CanAPF, desc(CanAPF$'2016')), digits = 2, caption = "Articles per faculty member per year, Faculty-Level")
 ```
 
 ###Average article impact
@@ -479,7 +493,17 @@ USmechFac <- spread(USmechFacCt, PY, Fac)
 
 ##Faculty-level calculation
 
-UScomp <- rbind(Alberta, CarnegieMellon, filter(ColoradoBoulder, Department != "Aerospace Engineering Sciences" & Department != "Computer Science"), Duke, filter(Florida, Department == "Biomedical Engineering" | Department == "Chemical Engineering" | Department == "Electrical & Computer Engineering" | Department == "Material Science & Engineering" | Department == "Mechanical & Aerospace Engineering"), filter(GeorgiaTech, Department != "Industrial and Systems Engineering" & Department != "Aerospace Engineering"), filter(IllinoisUC, Department == "Bioengineering" | Department == "Chemical $ Biomolecular Engineering" | Department == "Civil & Environmental Engineering" | Department == "Electrical & Computer Engineering" | Department == "Materials Science & Engineering" | Department == "Mechanical Science and Engineering"), filter(Michigan, Department != "Aerospace Engineering" & Department != "Climate and Space Sciences and Engineering" & Department != "Industrial and Operations Engineering" & Department != "Integrative Systems and Design" & Department != "Naval Architecture and Marine Engineerin" & Department != "Nuclear Engineering and Radiological Sciences"), filter(Minnesota, Department != "Aerospace Engineering and Mechanics" & Department != "Chemistry" & Department != "Earth Sciences" & Department != "School of Mathematics" & Department != "School of Physics and Astronomy"), filter(UTAustin, Department != "Aerospace Engineering and Engineering Mechanics" & Department != "Operations research and Industrial Engineering" & Department != "Texas Engineering Executive Education"), filter(Wisconsin, Department != "Engineering Physics" & Department != "Industrial & Systems Engineering"))
+UScomp <- rbind(chemmatUS, civilUS, elecUS, mechUS) %>%
+        count(PY, School) %>%
+        spread(PY, n)
+
+USfac <- select(rbind(chemmatFacUS, civilFacUS, elecFacUS, mechFacUS), -Department) %>%
+        gather(key = PY, value = Fac, -School, na.rm = TRUE) %>%
+        group_by(School, PY) %>%
+        summarise(Fac = sum(Fac)) %>%
+        spread(PY, Fac)
+
+USapf <- cbind(UScomp[1], round(UScomp[-1]/USfac[-1],1))
         
 
 ## Divide number of articles by number of faculty
@@ -495,6 +519,8 @@ kable(arrange(UScivilAF, desc(UScivilAF$`2016`)), digits = 2, caption = "Article
 kable(arrange(USelecAF, desc(USelecAF$`2016`)), digits = 2, caption = "Articles per faculty member per year - Electrical Engineering")
 
 kable(arrange(USmechAF, desc(USmechAF$`2016`)), digits = 2, caption = "Articles per faculty member per year - Mechanical Engineering")
+
+kable(arrange(USapf, desc(USapf$'2016')), digits = 2, caption = "Articles per faculty member per year, Faculty-Level")
 ```
 
 ###Average article impact
@@ -535,7 +561,7 @@ kable(arrange(USelecTC, desc(USelecTC$'Times Cited')), digits = 2, caption = "Me
 
 kable(arrange(USmechTC, desc(USmechTC$'Times Cited')), digits = 2, caption = "Mean citations per article - Mechanical Engineering")
 
-kable(arrange(USTC, desc(USTC$'Times Cited')), digits = 2, caption = "Mean citations per article per school (matching departments only")
+kable(arrange(USTC, desc(USTC$'Times Cited')), digits = 2, caption = "Mean citations per article per school (matching departments only)")
 ```
 
 ##References
