@@ -264,11 +264,9 @@ CanComp <- rbind(biomed, chemmat, civil, electrical, mechanical) %>%
 
 CanAPF <- cbind(CanComp[1], round(CanComp[-1]/CanFac[-1],1)) 
 
-<<<<<<< HEAD
-kable(arrange(CanAPF, desc(n)), digits = 2, caption = "Average number of articles per faculty member per year, by institution")
-=======
+
+
 kable(arrange(CanAPF, desc(CanAPF$'2016')), digits = 2, caption = "Articles per faculty member per year, Faculty-Level")
->>>>>>> ba2031b073540cf7b0dbea95d67312ee08bccc69
 ```
 
 ###Average article impact
@@ -538,12 +536,8 @@ kable(arrange(USelecAF, desc(USelecAF$`2016`)), digits = 2, caption = "Articles 
 
 kable(arrange(USmechAF, desc(USmechAF$`2016`)), digits = 2, caption = "Articles per faculty member per year - Mechanical Engineering")
 
-<<<<<<< HEAD
 kable(arrange(USapf, desc(USapf$'2016')), digits = 2, caption = "Articles per faculty member per year - Faculty-level")
 
-=======
-kable(arrange(USapf, desc(USapf$'2016')), digits = 2, caption = "Articles per faculty member per year, Faculty-Level")
->>>>>>> ba2031b073540cf7b0dbea95d67312ee08bccc69
 ```
 
 ###Average article impact
