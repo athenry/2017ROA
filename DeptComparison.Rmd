@@ -157,6 +157,7 @@ kable(arrange(mechAY, desc(mechAY$`2016`)), caption = "Articles per year - Mecha
 Annual faculty numbers were not available for all Alberta departments, nor for all institutions. Departmental-level Articles/year/faculty was calculated for 8 of the 15 Canadian schools. This calculation was also done at the overall institution level for the other 7 schools.
 
 ```{r output-per-faculty, include = TRUE, echo = FALSE, results='asis'}
+
 ## Articles per year per faculty
 AlbertaFac <- read.csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vT04KVZbmDhkrE43WSPjYgx2kKEgUdApH_z4UawFtmDKhu4sYhOaiMdZH0fdo3zo6rSSimAg7HXa7xc/pub?gid=1250905174&single=true&output=csv")
 names(AlbertaFac) <- c("Department", "2012", "2013", "2014", "2015", "2016")
@@ -250,6 +251,20 @@ restAF <- transform(restAF5, n=n/5)
 
 kable(arrange(restAF, desc(n)), digits = 2, caption = "Average number of articles per faculty member per year, by institution")
 
+CanFac <- rbind(chemmatFac, civilFac, elecFac, mechFac) %>%
+        gather(key = PY, value = Fac, -School, na.rm = TRUE) %>%
+        group_by(School, PY) %>%
+        summarise(Fac = sum(Fac)) %>%
+        spread(PY, Fac)
+
+CanComp <- rbind(biomed, chemmat, civil, electrical, mechanical) %>%
+        count(PY, School) %>%
+        spread(PY, n) %>%
+        filter(School %in% CanFac$School)
+
+CanAPF <- cbind(CanComp[1], round(CanComp[-1]/CanFac[-1],1)) 
+
+kable(arrange(CanAPF, desc(n)), digits = 2, caption = "Average number of articles per faculty member per year, by institution")
 ```
 
 ###Average article impact
@@ -488,6 +503,19 @@ UScivilAF <- cbind(UScivilAY[1], round(UScivilAY[-1]/UScivilFac[-1], 1))
 USelecAF <- cbind(USelecAY[1], round(USelecAY[-1]/USelecFac[-1], 1))
 USmechAF <- cbind(USmechAY[1], round(USmechAY[-1]/USmechFac[-1], 1))
 
+UScomp <- rbind(chemmatUS, civilUS, elecUS, mechUS) %>%
+        count(PY, School) %>%
+        spread(PY, n)
+
+USfac <- select(rbind(chemmatFacUS, civilFacUS, elecFacUS, mechFacUS), -Department) %>%
+        gather(key = PY, value = Fac, -School, na.rm = TRUE) %>%
+        group_by(School, PY) %>%
+        summarise(Fac = sum(Fac)) %>%
+        spread(PY, Fac)
+
+USapf <- cbind(UScomp[1], round(UScomp[-1]/USfac[-1],1))
+      
+
 kable(arrange(USchemmatAF, desc(USchemmatAF$`2016`)), digits = 2, caption = "Articles per faculty member per year - Chemical Engineering")
 
 kable(arrange(UScivilAF, desc(UScivilAF$`2016`)), digits = 2, caption = "Articles per faculty member per year - Civil Engineering")
@@ -495,6 +523,9 @@ kable(arrange(UScivilAF, desc(UScivilAF$`2016`)), digits = 2, caption = "Article
 kable(arrange(USelecAF, desc(USelecAF$`2016`)), digits = 2, caption = "Articles per faculty member per year - Electrical Engineering")
 
 kable(arrange(USmechAF, desc(USmechAF$`2016`)), digits = 2, caption = "Articles per faculty member per year - Mechanical Engineering")
+
+kable(arrange(USapf, desc(USapf$'2016')), digits = 2, caption = "Articles per faculty member per year - Faculty-level")
+
 ```
 
 ###Average article impact
