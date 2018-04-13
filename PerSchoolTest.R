@@ -35,5 +35,5 @@ USapf <- cbind(UScomp[1], round(UScomp[-1]/USfac[-1],1))
 
 write.csv(CanTC, "CanTC.csv", quote = TRUE, row.names = FALSE)
 write.csv(USTC, "USTC.csv", quote = TRUE, row.names = FALSE)
-write.csv(CanAPF, "CanAPF", quote = TRUE, row.names = FALSE)
+write.csv(CanAPF, "CanAPF.csv", quote = TRUE, row.names = FALSE)
 write.csv(USapf, "USapf.csv", quote = TRUE, row.names = FALSE)
